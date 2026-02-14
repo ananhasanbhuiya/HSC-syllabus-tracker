@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>HSC BUET Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: #f7f6f3;
+            color: #37352f;
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 13px;
+            opacity: 0.9;
+            margin-bottom: 15px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            padding: 12px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .container {
+            padding: 20px;
+            max-width: 100%;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab {
+            padding: 12px 20px;
+            border: none;
+            background: white;
+            color: #787774;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+            white-space: nowrap;
+            flex-shrink: 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .search-bar {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 14px 15px 14px 45px;
+            border: 1px solid #e9e9e7;
+            border-radius: 12px;
+            font-size: 16px;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+        }
+
+        .subject-section {
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .subject-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px 20px;
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .subject-header.physics { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .subject-header.chemistry { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .subject-header.math { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+        .subject-header.biology { background: linear-gradient(135deg, #30cfd0 0%, #330867 100%); }
+        .subject-header.bangla { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); color: #37352f; }
+        .subject-header.english { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); color: #37352f; }
+        .subject-header.ict { background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); color: #37352f; }
+
+        .progress-badge {
+            background: rgba(255,255,255,0.3);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .chapter-card {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f7f6f3;
+        }
+
+        .chapter-card:last-child {
+            border-bottom: none;
+        }
+
+        .chapter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .chapter-name {
+            font-size: 15px;
+            color: #37352f;
+            font-weight: 600;
+            flex: 1;
+            line-height: 1.4;
+        }
+
+        .paper-tag {
+            font-size: 11px;
+            color: #787774;
+            background: #f7f6f3;
+            padding: 4px 10px;
+            border-radius: 6px;
+            margin-left: 10px;
+            white-space: nowrap;
+        }
+
+        .checkboxes-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: #fafaf9;
+            border-radius: 8px;
+            cursor: pointer;
+            user-select: none;
+            -webkit-user-select: none;
+            transition: all 0.2s;
+        }
+
+        .checkbox-item:active {
+            transform: scale(0.98);
+            background: #f0f0f0;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            accent-color: #667eea;
+            margin: 0;
+        }
+
+        .checkbox-label {
+            font-size: 13px;
+            color: #37352f;
+            font-weight: 500;
+            flex: 1;
+        }
+
+        .revision-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: #fafaf9;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .revision-label {
+            font-size: 13px;
+            color: #37352f;
+            font-weight: 500;
+            flex: 1;
+        }
+
+        .revision-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .revision-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: #667eea;
+            color: white;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .revision-btn:active {
+            transform: scale(0.95);
+            background: #5568d3;
+        }
+
+        .revision-value {
+            min-width: 30px;
+            text-align: center;
+            font-size: 16px;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .progress-section {
+            padding: 10px;
+            background: #f7f6f3;
+            border-radius: 8px;
+        }
+
+        .progress-bar {
+            background: #e9e9e7;
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 6px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #5cb85c 100%);
+            transition: width 0.3s ease;
+            border-radius: 5px;
+        }
+
+        .progress-text {
+            font-size: 14px;
+            font-weight: 600;
+            color: #37352f;
+            text-align: center;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .install-prompt {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            z-index: 200;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .install-prompt h3 {
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .install-prompt p {
+            font-size: 13px;
+            opacity: 0.9;
+            margin-bottom: 12px;
+        }
+
+        .install-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .install-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .install-btn.primary {
+            background: white;
+            color: #667eea;
+        }
+
+        .install-btn.secondary {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                max-width: 900px;
+                margin: 0 auto;
+            }
+
+            .checkboxes-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📚 HSC BUET Tracker</h1>
+        <p>128 chapters • BUET + Board Exams</p>
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-label">BUET</div>
+                <div class="stat-value" id="buet-progress">0%</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Board</div>
+                <div class="stat-value" id="board-progress">0%</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Overall</div>
+                <div class="stat-value" id="overall-progress">0%</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="search-bar">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="search" placeholder="Search chapters...">
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" data-view="all">📊 All</button>
+            <button class="tab" data-view="buet">🎯 BUET</button>
+            <button class="tab" data-view="board">📝 Board</button>
+            <button class="tab" data-view="incomplete">⚡ To-Do</button>
+        </div>
+
+        <div id="subjects-container"></div>
+    </div>
+
+    <div id="install-prompt" class="install-prompt hidden">
+        <h3>📱 Add to Home Screen</h3>
+        <p>Install this tracker as an app on your iPad for easy access!</p>
+        <div class="install-buttons">
+            <button class="install-btn primary" onclick="showInstallInstructions()">Show How</button>
+            <button class="install-btn secondary" onclick="closeInstallPrompt()">Later</button>
+        </div>
+    </div>
+
+    <script>
+        const subjects = {
+            'পদার্থবিজ্ঞান': {
+                type: 'buet',
+                color: 'physics',
+                chapters: {
+                    '১ম পত্র': [
+                        'ভৌত জগৎ ও পরিমাপ', 'ভেক্টর', 'গতিবিদ্যা', 'নিউটনীয় বলবিদ্যা',
+                        'কাজ, ক্ষমতা ও শক্তি', 'মহাকর্ষ ও মহাকর্ষীয় ক্ষেত্র', 'পদার্থের গাঠনিক ধর্ম',
+                        'পর্যায়বৃত্ত গতি', 'তরঙ্গ', 'আদর্শ গ্যাস ও গ্যাসের গতিতত্ত্ব'
+                    ],
+                    '২য় পত্র': [
+                        'তাপগতিবিদ্যা', 'স্থির তড়িৎ', 'চল তড়িৎ', 'তড়িৎ প্রবাহের চৌম্বক ক্রিয়া ও চুম্বকত্ব',
+                        'তড়িচ্চুম্বকীয় আবেশ ও পরিবর্তী প্রবাহ', 'জ্যামিতিক আলোকবিজ্ঞান', 'ভৌত আলোকবিজ্ঞান',
+                        'আধুনিক পদার্থবিজ্ঞানের সূচনা', 'পরমাণুর মডেল ও নিউক্লিয়ার পদার্থবিজ্ঞান',
+                        'সেমিকন্ডাক্টর ও ইলেকট্রনিক্স', 'জ্যোতির্বিজ্ঞান'
+                    ]
+                }
+            },
+            'রসায়ন': {
+                type: 'buet',
+                color: 'chemistry',
+                chapters: {
+                    '১ম পত্র': [
+                        'ল্যাবরেটরিতে নিরাপত্তা ও পরিচ্ছন্নতা', 'গুণগত রসায়ন',
+                        'মৌলের পর্যায়বৃত্ত ধর্ম ও রাসায়নিক বন্ধন', 'রাসায়নিক পরিবর্তন', 'কর্মমুখী রসায়ন'
+                    ],
+                    '২য় পত্র': [
+                        'পরিবেশ রসায়ন', 'জৈব রসায়ন', 'পরিমাণগত রসায়ন',
+                        'রাসায়নিক গতিবিদ্যা ও রাসায়নিক সাম্যাবস্থা', 'তড়িৎ রসায়ন'
+                    ]
+                }
+            },
+            'উচ্চতর গণিত': {
+                type: 'buet',
+                color: 'math',
+                chapters: {
+                    '১ম পত্র': [
+                        'ম্যাট্রিক্স ও নির্ণায়ক', 'ভেক্টর', 'সরলরেখা', 'বৃত্ত', 'পরাবৃত্ত', 'কনিক',
+                        'ত্রিকোণমিতিক অনুপাত', 'ত্রিকোণমিতিক সমীকরণ', 'সমীকরণের প্রয়োগ',
+                        'অন্তরীকরণ', 'যোগজীকরণ', 'সমতল স্থানাঙ্ক জ্যামিতি'
+                    ],
+                    '২য় পত্র': [
+                        'জটিল সংখ্যা', 'বহুপদী ও আংশিক ভগ্নাংশ', 'সূচকীয় ও লগারিদমীয় ধারা', 'অসমতা',
+                        'কনিক', 'ত্রিমাত্রিক স্থানাঙ্ক জ্যামিতি', 'বিপরীত বৃত্তীয় ও বিপরীত অধিবৃত্তীয় ফাংশন',
+                        'বিন্যাস ও সমাবেশ', 'দ্বিপদী বিস্তৃতি', 'সম্ভাব্যতা', 'স্থিতিবিদ্যা', 'গতিবিদ্যা'
+                    ]
+                }
+            },
+            'জীববিজ্ঞান': {
+                type: 'board',
+                color: 'biology',
+                chapters: {
+                    '১ম পত্র': [
+                        'কোষ ও এর গঠন', 'কোষ বিভাজন', 'কোষ রসায়ন', 'অণুজীব', 'শৈবাল ও ছত্রাক',
+                        'ব্রায়োফাইটা ও টেরিডোফাইটা', 'নগ্নবীজী ও আবৃতবীজী উদ্ভিদ', 'টিস্যু ও টিস্যুতন্ত্র',
+                        'উদ্ভিদের শারীরতত্ত্ব', 'উদ্ভিদের প্রজনন', 'জীবপ্রযুক্তি'
+                    ],
+                    '২য় পত্র': [
+                        'প্রাণীর বিভিন্নতা ও শ্রেণিবিন্যাস', 'মানব শারীরতত্ত্ব: পরিপাক ও শোষণ',
+                        'মানব শারীরতত্ত্ব: রক্ত ও সংবহন', 'মানব শারীরতত্ত্ব: শ্বসন ও শ্বাসক্রিয়া',
+                        'মানব শারীরতত্ত্ব: রেচন প্রক্রিয়া', 'মানব শারীরতত্ত্ব: চলন ও অঙ্গসঞ্চালন',
+                        'মানব শারীরতত্ত্ব: সমন্বয়', 'মানব শারীরতত্ত্ব: মানব জনন',
+                        'জীবের পরিবেশ, বিস্তার ও সংরক্ষণ', 'মানব কল্যাণে জীববিজ্ঞান',
+                        'জীবপ্রযুক্তি', 'বংশগতি ও বিবর্তন'
+                    ]
+                }
+            },
+            'বাংলা': {
+                type: 'board',
+                color: 'bangla',
+                chapters: {
+                    'গদ্য': [
+                        'অপরিচিতা - রবীন্দ্রনাথ ঠাকুর', 'আমার পথ - কাজী নজরুল ইসলাম',
+                        'বিলাসী - শরৎচন্দ্র চট্টোপাধ্যায়', 'রেইনকোট - আখতারুজ্জামান ইলিয়াস',
+                        'আহবান - বিভূতিভূষণ বন্দ্যোপাধ্যায়', 'বায়ান্নর দিনগুলো - শেখ মুজিবুর রহমান',
+                        'একাত্তরের দিনগুলি - জাহানারা ইমাম', 'নেকলেস - গী দ্য মোপাসাঁ',
+                        'রক্তে আমার অনাদি অস্থি - অদম্য', 'প্রতিদান - মানিক বন্দ্যোপাধ্যায়',
+                        'বই পড়া - প্রমথ চৌধুরী', 'জীবন ও বৃক্ষ - মোতাহের হোসেন চৌধুরী'
+                    ],
+                    'কবিতা': [
+                        'সেই অস্ত্র - সৈয়দ শামসুল হক', 'গৃহ - হুমায়ুন আজাদ',
+                        'ফেব্রুয়ারি ১৯৬৯ - শামসুর রাহমান', 'বিভীষণের প্রতি মেঘনাদ - মাইকেল মধুসূদন দত্ত',
+                        'সোনার তরী - রবীন্দ্রনাথ ঠাকুর', 'মানুষ - কাজী নজরুল ইসলাম',
+                        'বিদ্রোহী - কাজী নজরুল ইসলাম', 'পল্লীজননী - জসীমউদ্দীন',
+                        'রক্তে আমার অনাদি অস্থি - সৈয়দ শামসুল হক', 'রানার - সুকান্ত ভট্টাচার্য',
+                        'আমি কিংবদন্তির কথা বলছি - আবু জাফর ওবায়দুল্লাহ', 'প্রলয় উল্লাস - কাজী নজরুল ইসলাম'
+                    ]
+                }
+            },
+            'English': {
+                type: 'board',
+                color: 'english',
+                chapters: {
+                    'Reading': [
+                        'Unit 1: Nelson Mandela', 'Unit 2: Dreams & Dreamers',
+                        'Unit 3: Traffic Education', 'Unit 4: Food Adulteration',
+                        'Unit 5: Adolescence', 'Unit 6: Diaspora',
+                        'Unit 7: The River', 'Unit 8: Devotion',
+                        'Unit 9: Digital Bangladesh', 'Unit 10: Renewable Energy',
+                        'Unit 11: Heritage', 'Unit 12: Nakshi Kantha'
+                    ],
+                    'Writing': [
+                        'Formal Letter', 'Application', 'Email',
+                        'Paragraph', 'Composition', 'Summary',
+                        'Report', 'Dialogue'
+                    ]
+                }
+            },
+            'ICT': {
+                type: 'board',
+                color: 'ict',
+                chapters: {
+                    'অধ্যায়': [
+                        'তথ্য ও যোগাযোগ প্রযুক্তি: বিশ্ব ও বাংলাদেশ',
+                        'কমিউনিকেশন সিস্টেমস ও নেটওয়ার্কিং',
+                        'সংখ্যা পদ্ধতি ও ডিজিটাল ডিভাইস',
+                        'ওয়েব ডিজাইন ও HTML',
+                        'প্রোগ্রামিং (C)',
+                        'ডেটাবেজ ম্যানেজমেন্ট'
+                    ]
+                }
+            }
+        };
+
+        let chapterData = {};
+        let chapterIndex = 0;
+
+        // Initialize data
+        Object.keys(subjects).forEach(subject => {
+            Object.keys(subjects[subject].chapters).forEach(paper => {
+                subjects[subject].chapters[paper].forEach(chapter => {
+                    const id = `chapter-${chapterIndex++}`;
+                    chapterData[id] = {
+                        subject,
+                        paper,
+                        chapter,
+                        type: subjects[subject].type,
+                        mainBook: false,
+                        testPaper: false,
+                        questionBank: false,
+                        guidebook: false,
+                        revision: 0
+                    };
+                });
+            });
+        });
+
+        // Load from localStorage
+        const saved = localStorage.getItem('hscTrackerData');
+        if (saved) {
+            const savedData = JSON.parse(saved);
+            Object.keys(savedData).forEach(id => {
+                if (chapterData[id]) {
+                    chapterData[id] = { ...chapterData[id], ...savedData[id] };
+                }
+            });
+        }
+
+        function saveData() {
+            localStorage.setItem('hscTrackerData', JSON.stringify(chapterData));
+            updateStats();
+        }
+
+        function calculateProgress(id) {
+            const data = chapterData[id];
+            // Equal weight: 25% each for all 4 checkboxes
+            const main = data.mainBook ? 25 : 0;
+            const test = data.testPaper ? 25 : 0;
+            const question = data.questionBank ? 25 : 0;
+            const guide = data.guidebook ? 25 : 0;
+            return main + test + question + guide;
+        }
+
+        function updateStats() {
+            const buetChapters = Object.keys(chapterData).filter(id => chapterData[id].type === 'buet');
+            const boardChapters = Object.keys(chapterData).filter(id => chapterData[id].type === 'board');
+            
+            const buetAvg = buetChapters.reduce((sum, id) => sum + calculateProgress(id), 0) / buetChapters.length;
+            const boardAvg = boardChapters.reduce((sum, id) => sum + calculateProgress(id), 0) / boardChapters.length;
+            const overall = (buetAvg + boardAvg) / 2;
+
+            document.getElementById('buet-progress').textContent = Math.round(buetAvg) + '%';
+            document.getElementById('board-progress').textContent = Math.round(boardAvg) + '%';
+            document.getElementById('overall-progress').textContent = Math.round(overall) + '%';
+        }
+
+        function renderSubjects() {
+            const container = document.getElementById('subjects-container');
+            container.innerHTML = '';
+
+            Object.keys(subjects).forEach(subject => {
+                const subjectData = subjects[subject];
+                const section = document.createElement('div');
+                section.className = 'subject-section';
+                section.dataset.type = subjectData.type;
+
+                const chapterIds = Object.keys(chapterData).filter(id => 
+                    chapterData[id].subject === subject
+                );
+                const avgProgress = chapterIds.reduce((sum, id) => 
+                    sum + calculateProgress(id), 0) / chapterIds.length;
+
+                section.innerHTML = `
+                    <div class="subject-header ${subjectData.color}">
+                        <span>${subject} (${chapterIds.length})</span>
+                        <span class="progress-badge">${Math.round(avgProgress)}%</span>
+                    </div>
+                `;
+
+                const chapterList = document.createElement('div');
+
+                Object.keys(subjectData.chapters).forEach(paper => {
+                    subjectData.chapters[paper].forEach(chapter => {
+                        const id = Object.keys(chapterData).find(key => 
+                            chapterData[key].subject === subject &&
+                            chapterData[key].paper === paper &&
+                            chapterData[key].chapter === chapter
+                        );
+
+                        if (!id) return;
+
+                        const data = chapterData[id];
+                        const progress = calculateProgress(id);
+
+                        const card = document.createElement('div');
+                        card.className = 'chapter-card';
+                        card.dataset.id = id;
+
+                        card.innerHTML = `
+                            <div class="chapter-header">
+                                <div class="chapter-name">${chapter}</div>
+                                <div class="paper-tag">${paper}</div>
+                            </div>
+                            
+                            <div class="checkboxes-grid">
+                                <label class="checkbox-item">
+                                    <input type="checkbox" ${data.mainBook ? 'checked' : ''} 
+                                        onchange="updateCheckbox('${id}', 'mainBook', this.checked)">
+                                    <span class="checkbox-label">মূল বই</span>
+                                </label>
+                                
+                                <label class="checkbox-item">
+                                    <input type="checkbox" ${data.testPaper ? 'checked' : ''} 
+                                        onchange="updateCheckbox('${id}', 'testPaper', this.checked)">
+                                    <span class="checkbox-label">টেস্ট পেপার</span>
+                                </label>
+                                
+                                <label class="checkbox-item">
+                                    <input type="checkbox" ${data.questionBank ? 'checked' : ''} 
+                                        onchange="updateCheckbox('${id}', 'questionBank', this.checked)">
+                                    <span class="checkbox-label">প্রশ্নব্যাংক</span>
+                                </label>
+                                
+                                <label class="checkbox-item">
+                                    <input type="checkbox" ${data.guidebook ? 'checked' : ''} 
+                                        onchange="updateCheckbox('${id}', 'guidebook', this.checked)">
+                                    <span class="checkbox-label">গাইড বই</span>
+                                </label>
+                            </div>
+
+                            <div class="revision-section">
+                                <span class="revision-label">রিভিশন সংখ্যা</span>
+                                <div class="revision-controls">
+                                    <button class="revision-btn" onclick="changeRevision('${id}', -1)">−</button>
+                                    <span class="revision-value">${data.revision}</span>
+                                    <button class="revision-btn" onclick="changeRevision('${id}', 1)">+</button>
+                                </div>
+                            </div>
+
+                            <div class="progress-section">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: ${progress}%"></div>
+                                </div>
+                                <div class="progress-text">${progress}% সম্পন্ন</div>
+                            </div>
+                        `;
+
+                        chapterList.appendChild(card);
+                    });
+                });
+
+                section.appendChild(chapterList);
+                container.appendChild(section);
+            });
+
+            updateStats();
+        }
+
+        function updateCheckbox(id, field, value) {
+            chapterData[id][field] = value;
+            saveData();
+            renderSubjects();
+        }
+
+        function changeRevision(id, delta) {
+            chapterData[id].revision = Math.max(0, chapterData[id].revision + delta);
+            saveData();
+            renderSubjects();
+        }
+
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                const view = tab.dataset.view;
+                const sections = document.querySelectorAll('.subject-section');
+
+                sections.forEach(section => {
+                    if (view === 'all') {
+                        section.classList.remove('hidden');
+                    } else if (view === 'buet') {
+                        section.classList.toggle('hidden', section.dataset.type !== 'buet');
+                    } else if (view === 'board') {
+                        section.classList.toggle('hidden', section.dataset.type !== 'board');
+                    } else if (view === 'incomplete') {
+                        const cards = section.querySelectorAll('.chapter-card');
+                        let hasIncomplete = false;
+                        cards.forEach(card => {
+                            const id = card.dataset.id;
+                            const progress = calculateProgress(id);
+                            if (progress < 100) {
+                                hasIncomplete = true;
+                                card.classList.remove('hidden');
+                            } else {
+                                card.classList.add('hidden');
+                            }
+                        });
+                        section.classList.toggle('hidden', !hasIncomplete);
+                    }
+                });
+            });
+        });
+
+        // Search
+        document.getElementById('search').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            document.querySelectorAll('.chapter-card').forEach(card => {
+                const text = card.textContent.toLowerCase();
+                card.classList.toggle('hidden', !text.includes(query));
+            });
+        });
+
+        // Install prompt
+        function showInstallPrompt() {
+            if (!localStorage.getItem('installPromptShown')) {
+                setTimeout(() => {
+                    document.getElementById('install-prompt').classList.remove('hidden');
+                }, 3000);
+            }
+        }
+
+        function closeInstallPrompt() {
+            document.getElementById('install-prompt').classList.add('hidden');
+            localStorage.setItem('installPromptShown', 'true');
+        }
+
+        function showInstallInstructions() {
+            alert('📱 iPad-এ Add to Home Screen করুন:\n\n1. Safari-এ এই পেজটি খুলুন\n2. শেয়ার বাটনে ট্যাপ করুন (📤)\n3. "Add to Home Screen" সিলেক্ট করুন\n4. "Add" এ ট্যাপ করুন\n\nএখন এটি একটি app এর মতো কাজ করবে!');
+            closeInstallPrompt();
+        }
+
+        renderSubjects();
+        showInstallPrompt();
+    </script>
+</body>
+</html>
