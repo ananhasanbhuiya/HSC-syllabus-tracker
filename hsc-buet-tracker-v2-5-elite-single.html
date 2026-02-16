@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HSC BUET Tracker v2.5 Elite (Single File)</title>
+<style>
+:root{
+ --bg:#f6f7fb; --card:#fff; --text:#222; --muted:#666;
+ --accent:#667eea; --accent2:#764ba2; --ok:#27ae60; --warn:#f39c12;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text)}
+header{position:sticky;top:0;z-index:50;padding:14px 16px;color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 4px 14px rgba(0,0,0,.2)}
+h1{margin:0;font-size:20px}
+.sub{opacity:.9;font-size:12px}
+.tabs{display:flex;gap:8px;overflow:auto;padding:10px;background:#fff;border-bottom:1px solid #ececec}
+.tab{border:none;background:#f1f2f6;padding:8px 12px;border-radius:10px;white-space:nowrap;cursor:pointer}
+.tab.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
+.container{max-width:980px;margin:0 auto;padding:12px}
+.card{background:var(--card);border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.grid{display:grid;grid-template-columns:1fr;gap:10px}
+@media(min-width:760px){.grid{grid-template-columns:1fr 1fr}}
+.big{font-size:36px;font-weight:700;color:var(--accent)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.muted{color:var(--muted);font-size:13px}
+.chapter{background:#fff;border-radius:12px;padding:12px;margin:10px 0;box-shadow:0 2px 8px rgba(0,0,0,.07);animation:fade .25s ease}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.task{display:flex;align-items:center;gap:8px;background:#fafbff;border:1px solid #eef0ff;padding:8px;border-radius:8px;margin-top:7px}
+.bar{height:8px;background:#ececec;border-radius:6px;overflow:hidden;margin-top:10px}
+.fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--ok));transition:width .25s}
+.btn{border:none;background:var(--accent);color:#fff;padding:8px 10px;border-radius:8px;cursor:pointer}
+input[type=search]{width:100%;padding:10px;border-radius:10px;border:1px solid #ddd}
+.ring{width:110px;height:110px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--accent) calc(var(--p)*1%), #e8e8e8 0)}
+.ring > div{width:78px;height:78px;border-radius:50%;background:var(--card);display:grid;place-items:center;font-weight:700}
+.small{font-size:12px}
+</style>
+</head>
+<body>
+<header>
+  <h1>📚 HSC BUET Tracker v2.5 Elite</h1>
+  <div class="sub">Single-file • animations • smart targets • searchable</div>
+</header>
+
+<div class="tabs" id="tabs"></div>
+
+<div class="container"><div id="page"></div></div>
+
+<script>
+const SUBJECTS={
+ "Physics":{tasks:["Main Book","Board Questions","Question Bank","Guide"],chapters:[
+  {name:"Mechanics",weight:3},{name:"Thermodynamics",weight:3},{name:"Electricity",weight:3},{name:"Optics",weight:2}]},
+ "Chemistry":{tasks:["Main Book","Board Questions","Question Bank","Guide"],chapters:[
+  {name:"Organic",weight:3},{name:"Physical",weight:3},{name:"Inorganic",weight:2}]},
+ "Higher Math":{tasks:["Main Book","Board Questions","Question Bank","Guide"],chapters:[
+  {name:"Integration",weight:3},{name:"Differentiation",weight:3},{name:"Geometry",weight:2}]},
+ "Biology":{tasks:["Main Book","Board Questions"],chapters:[
+  {name:"Cell Biology",weight:2},{name:"Human Physiology",weight:2}]}
+};
+const KEY="hsc_tracker_v25_elite";
+let STATE={theme:"light",examDate:"2026-08-01",subjects:{},search:""};
+let page="dashboard";
+
+function slug(s){return s.toLowerCase().replace(/[^a-z0-9]+/g,"_")}
+function init(){
+ const s=localStorage.getItem(KEY); if(s){try{STATE={...STATE,...JSON.parse(s)}}catch(e){}}
+ Object.entries(SUBJECTS).forEach(([sn,si])=>{
+  if(!STATE.subjects[sn]) STATE.subjects[sn]={chapters:{}};
+  si.chapters.forEach(ch=>{
+   const id=slug(sn+"_"+ch.name);
+   if(!STATE.subjects[sn].chapters[id]){
+    STATE.subjects[sn].chapters[id]={name:ch.name,weight:ch.weight,revision:0,
+     tasks:si.tasks.map(t=>({name:t,done:false}))};
+   }
+  });
+ });
+ save();
+}
+function save(){localStorage.setItem(KEY,JSON.stringify(STATE))}
+
+function chProg(ch){const t=ch.tasks.length,d=ch.tasks.filter(x=>x.done).length;return Math.round(d/t*100)}
+function subProg(name){
+ let num=0,den=0;
+ Object.values(STATE.subjects[name].chapters).forEach(ch=>{num+=chProg(ch)*ch.weight;den+=ch.weight});
+ return den?Math.round(num/den):0;
+}
+function overall(){const s=Object.keys(SUBJECTS);return Math.round(s.reduce((a,n)=>a+subProg(n),0)/s.length)}
+
+function renderTabs(){
+ const el=document.getElementById("tabs"); el.innerHTML="";
+ [["dashboard","Dashboard"],...Object.keys(SUBJECTS).map(s=>[s,s]),["settings","Settings"]].forEach(([id,label])=>{
+  const b=document.createElement("button");
+  b.className="tab"+(page===id?" active":"");
+  b.textContent=label; b.onclick=()=>{page=id;renderAll()};
+  el.appendChild(b);
+ });
+}
+function daysLeft(){
+ const e=new Date(STATE.examDate), n=new Date();
+ return Math.max(0,Math.ceil((e-n)/(1000*60*60*24)));
+}
+function smartTarget(){
+ let totalCh=0,done=0;
+ Object.keys(SUBJECTS).forEach(s=>{
+  Object.values(STATE.subjects[s].chapters).forEach(ch=>{totalCh++; if(chProg(ch)===100) done++;});
+ });
+ const remaining=Math.max(0,totalCh-done);
+ const d=Math.max(1,daysLeft());
+ return (remaining/d).toFixed(2);
+}
+function weakest(){
+ let w={n:null,p:999};
+ Object.keys(SUBJECTS).forEach(s=>{const p=subProg(s); if(p<w.p){w={n:s,p}}});
+ return w;
+}
+function ring(p){return `<div class="ring" style="--p:${p}"><div>${p}%</div></div>`}
+
+function renderDashboard(){
+ const p=overall(), w=weakest();
+ return `
+ <div class="grid">
+  <div class="card"><div class="row"><div>
+    <div class="muted">Overall Progress</div>
+    <div class="big">${p}%</div>
+    <div class="muted">Smart target: ~${smartTarget()} chapters/day</div>
+  </div>${ring(p)}</div></div>
+  <div class="card">
+    <div class="muted">Exam Countdown</div>
+    <div class="big">${daysLeft()}</div>
+    <div class="muted">days left • Weakest subject: ${w.n} (${w.p}%)</div>
+  </div>
+ </div>
+ <div class="card">
+   <div class="muted">Subject Progress</div>
+   ${Object.keys(SUBJECTS).map(s=>`<div class="row" style="margin-top:8px"><b>${s}</b><b>${subProg(s)}%</b></div>`).join("")}
+ </div>`;
+}
+
+function renderSubject(name){
+ const chs=Object.entries(STATE.subjects[name].chapters);
+ const filtered=chs.filter(([id,ch])=>ch.name.toLowerCase().includes(STATE.search.toLowerCase()));
+ return `
+ <div class="card">
+   <div class="row"><b>${name}</b><b>${subProg(name)}%</b></div>
+   <input type="search" placeholder="Search chapter..." value="${STATE.search}"
+     oninput="setSearch(this.value)">
+ </div>
+ ${filtered.map(([id,ch])=>{
+   const p=chProg(ch);
+   return `<div class="chapter">
+     <div class="row"><b>${ch.name}</b><span class="small">weight ${ch.weight}</span></div>
+     ${ch.tasks.map((t,i)=>`<label class="task"><input type="checkbox" ${t.done?"checked":""}
+      onchange="toggle('${name}','${id}',${i},this.checked)"><span>${t.name}</span></label>`).join("")}
+     <div class="bar"><div class="fill" style="width:${p}%"></div></div>
+     <div class="small">${p}% completed</div>
+   </div>`
+ }).join("")}
+ `;
+}
+
+function renderSettings(){
+ return `<div class="card">
+ <button class="btn" onclick="exportData()">Export Backup</button>
+ <button class="btn" onclick="importData()" style="margin-left:8px">Import Backup</button>
+ <button class="btn" onclick="resetAll()" style="margin-left:8px;background:#d9534f">Reset</button>
+ <div class="muted" style="margin-top:10px">Everything saves automatically in your browser.</div>
+ </div>`;
+}
+
+function renderAll(){
+ renderTabs();
+ const p=document.getElementById("page");
+ if(page==="dashboard") p.innerHTML=renderDashboard();
+ else if(page==="settings") p.innerHTML=renderSettings();
+ else p.innerHTML=renderSubject(page);
+}
+
+function toggle(s,id,i,v){STATE.subjects[s].chapters[id].tasks[i].done=v; save(); renderAll();}
+function setSearch(v){STATE.search=v; renderAll();}
+function exportData(){
+ const blob=new Blob([JSON.stringify(STATE,null,2)],{type:"application/json"});
+ const a=document.createElement("a");
+ a.href=URL.createObjectURL(blob); a.download="hsc_tracker_v25_backup.json"; a.click();
+}
+function importData(){
+ const inp=document.createElement("input"); inp.type="file"; inp.accept=".json";
+ inp.onchange=e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{try{STATE={...STATE,...JSON.parse(r.result)}; save(); renderAll(); alert("Imported");}catch(e){alert("Invalid file")}}
+  r.readAsText(f);
+ }; inp.click();
+}
+function resetAll(){ if(confirm("Reset everything?")){localStorage.removeItem(KEY); location.reload();}}
+
+init(); renderAll();
+</script>
+</body>
+</html>
