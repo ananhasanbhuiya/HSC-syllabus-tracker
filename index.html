@@ -1,945 +1,321 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#667eea">
-    <title>HSC BUET Tracker</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-            background: #f7f6f3;
-            color: #37352f;
-            line-height: 1.5;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 25px 20px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-
-        .header h1 {
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-
-        .header p {
-            font-size: 13px;
-            opacity: 0.9;
-            margin-bottom: 15px;
-        }
-
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-        }
-
-        .stat-card {
-            background: rgba(255,255,255,0.2);
-            backdrop-filter: blur(10px);
-            padding: 12px;
-            border-radius: 12px;
-            text-align: center;
-        }
-
-        .stat-label {
-            font-size: 11px;
-            opacity: 0.9;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 5px;
-        }
-
-        .stat-value {
-            font-size: 28px;
-            font-weight: 700;
-        }
-
-        .container {
-            padding: 20px;
-            max-width: 100%;
-        }
-
-        .tabs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 20px;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: none;
-        }
-
-        .tabs::-webkit-scrollbar {
-            display: none;
-        }
-
-        .tab {
-            padding: 12px 20px;
-            border: none;
-            background: white;
-            color: #787774;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            border-radius: 8px;
-            transition: all 0.2s;
-            white-space: nowrap;
-            flex-shrink: 0;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        .tab.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .search-bar {
-            margin-bottom: 20px;
-            position: relative;
-        }
-
-        .search-bar input {
-            width: 100%;
-            padding: 14px 15px 14px 45px;
-            border: 1px solid #e9e9e7;
-            border-radius: 12px;
-            font-size: 16px;
-            background: white;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 18px;
-        }
-
-        .subject-section {
-            background: white;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .subject-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 16px 20px;
-            font-size: 18px;
-            font-weight: 600;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .subject-header.physics { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-        .subject-header.chemistry { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
-        .subject-header.math { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
-        .subject-header.biology { background: linear-gradient(135deg, #30cfd0 0%, #330867 100%); }
-        .subject-header.bangla { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); color: #37352f; }
-        .subject-header.english { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); color: #37352f; }
-        .subject-header.ict { background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); color: #37352f; }
-
-        .progress-badge {
-            background: rgba(255,255,255,0.3);
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
-        }
-
-        .chapter-card {
-            padding: 16px 20px;
-            border-bottom: 1px solid #f7f6f3;
-        }
-
-        .chapter-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 12px;
-        }
-
-        .chapter-name {
-            font-size: 15px;
-            color: #37352f;
-            font-weight: 600;
-            flex: 1;
-            line-height: 1.4;
-        }
-
-        .paper-tag {
-            font-size: 11px;
-            color: #787774;
-            background: #f7f6f3;
-            padding: 4px 10px;
-            border-radius: 6px;
-            margin-left: 10px;
-            white-space: nowrap;
-        }
-
-        .checkboxes-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-bottom: 12px;
-        }
-
-        .checkbox-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px;
-            background: #fafaf9;
-            border-radius: 8px;
-            cursor: pointer;
-            user-select: none;
-            transition: all 0.2s;
-        }
-
-        .checkbox-item:active {
-            transform: scale(0.98);
-            background: #f0f0f0;
-        }
-
-        .checkbox-item input[type="checkbox"] {
-            width: 24px;
-            height: 24px;
-            cursor: pointer;
-            accent-color: #667eea;
-            margin: 0;
-        }
-
-        .checkbox-label {
-            font-size: 13px;
-            color: #37352f;
-            font-weight: 500;
-            flex: 1;
-        }
-
-        .revision-section {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px;
-            background: #fafaf9;
-            border-radius: 8px;
-            margin-bottom: 12px;
-        }
-
-        .revision-label {
-            font-size: 13px;
-            color: #37352f;
-            font-weight: 500;
-            flex: 1;
-        }
-
-        .revision-controls {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .revision-btn {
-            width: 32px;
-            height: 32px;
-            border: none;
-            background: #667eea;
-            color: white;
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-        }
-
-        .revision-btn:active {
-            transform: scale(0.95);
-            background: #5568d3;
-        }
-
-        .revision-value {
-            min-width: 30px;
-            text-align: center;
-            font-size: 16px;
-            font-weight: 600;
-            color: #667eea;
-        }
-
-        .progress-section {
-            padding: 10px;
-            background: #f7f6f3;
-            border-radius: 8px;
-        }
-
-        .progress-bar {
-            background: #e9e9e7;
-            height: 10px;
-            border-radius: 5px;
-            overflow: hidden;
-            margin-bottom: 6px;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #667eea 0%, #5cb85c 100%);
-            transition: width 0.3s ease;
-            border-radius: 5px;
-        }
-
-        .progress-text {
-            font-size: 14px;
-            font-weight: 600;
-            color: #37352f;
-            text-align: center;
-        }
-
-        .settings-section {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .settings-title {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 20px;
-            color: #667eea;
-        }
-
-        .setting-item {
-            padding: 15px;
-            background: #fafaf9;
-            border-radius: 8px;
-            margin-bottom: 15px;
-        }
-
-        .setting-item h3 {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #37352f;
-        }
-
-        .setting-item p {
-            font-size: 14px;
-            color: #787774;
-            line-height: 1.6;
-            margin-bottom: 10px;
-        }
-
-        .setting-item ol {
-            margin-left: 20px;
-            color: #787774;
-            font-size: 14px;
-        }
-
-        .setting-item li {
-            margin-bottom: 5px;
-        }
-
-        .danger-btn {
-            background: #dc3545;
-            color: white;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .danger-btn:hover {
-            background: #c82333;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        @media (min-width: 768px) {
-            .container {
-                max-width: 900px;
-                margin: 0 auto;
-            }
-
-            .checkboxes-grid {
-                grid-template-columns: repeat(4, 1fr);
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HSC BUET Tracker v2 Pro (Single File)</title>
+<style>
+:root{
+  --bg:#f7f6f3; --card:#fff; --text:#37352f; --muted:#787774;
+  --accent:#667eea; --accent2:#764ba2; --ok:#25a55f;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text)}
+.header{position:sticky;top:0;z-index:20;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;padding:16px 18px;box-shadow:0 4px 12px rgba(0,0,0,.18)}
+.header h1{margin:0 0 4px;font-size:20px}
+.header .sub{font-size:12px;opacity:.9}
+.tabs{display:flex;gap:8px;padding:12px;overflow:auto;background:#fff;border-bottom:1px solid #eee}
+.tab{border:none;background:#f0efec;padding:9px 12px;border-radius:8px;white-space:nowrap;cursor:pointer}
+.tab.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
+.container{max-width:980px;margin:0 auto;padding:14px}
+.card{background:var(--card);border-radius:12px;padding:14px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.muted{color:var(--muted);font-size:13px}
+.big{font-size:36px;font-weight:700;color:var(--accent)}
+.grid{display:grid;grid-template-columns:1fr;gap:10px}
+@media(min-width:760px){.grid{grid-template-columns:1fr 1fr}}
+.chapter{background:#fff;border-radius:12px;padding:12px;margin:10px 0;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.task{display:flex;align-items:center;gap:8px;background:#fafaf9;padding:8px;border-radius:8px;margin-top:8px}
+.bar{height:8px;background:#e9e9e7;border-radius:4px;overflow:hidden;margin-top:10px}
+.fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--ok))}
+.small{font-size:12px}
+.btn{border:none;background:var(--accent);color:#fff;padding:8px 10px;border-radius:8px;cursor:pointer}
+select{padding:6px;border-radius:8px;border:1px solid #ddd}
+.hidden{display:none}
+</style>
 </head>
 <body>
-    <div class="header">
-        <h1>📚 HSC BUET Tracker</h1>
-        <p>Complete syllabus tracker for BUET & Board exams</p>
-        <div class="stats">
-            <div class="stat-card">
-                <div class="stat-label">Engineering</div>
-                <div class="stat-value" id="engineering-progress">0%</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Board</div>
-                <div class="stat-value" id="board-progress">0%</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Overall</div>
-                <div class="stat-value" id="overall-progress">0%</div>
-            </div>
-        </div>
-    </div>
+<div class="header">
+  <h1>📚 HSC BUET Tracker v2 PRO</h1>
+  <div class="sub" id="subtitle"></div>
+</div>
 
-    <div class="container">
-        <div class="search-bar">
-            <span class="search-icon">🔍</span>
-            <input type="text" id="search" placeholder="Search chapters...">
-        </div>
+<div class="tabs" id="tabs"></div>
 
-        <div class="tabs">
-            <button class="tab active" data-view="all">📊 All Subjects</button>
-            <button class="tab" data-view="engineering">🎯 Engineering</button>
-            <button class="tab" data-view="board">📝 Board Only</button>
-            <button class="tab" data-view="incomplete">⚡ To-Do</button>
-            <button class="tab" data-view="settings">⚙️ Settings</button>
-        </div>
+<div class="container">
+  <div id="page"></div>
+</div>
 
-        <div id="subjects-container"></div>
-        <div id="settings-container" class="hidden"></div>
-    </div>
+<script>
+/* ========= i18n ========= */
+const LANG = {
+  bn: {dashboard:"ড্যাশবোর্ড", settings:"সেটিংস", progress:"সম্পন্ন", completed:"শেষ", overall:"সামগ্রিক অগ্রগতি",
+       countdown:"পরীক্ষার কাউন্টডাউন", daysLeft:"দিন বাকি", language:"ভাষা", theme:"থিম", export:"Export Data",
+       import:"Import Data", reset:"Reset All", light:"Light", dark:"Dark", examReady:"Exam readiness"},
+  en: {dashboard:"Dashboard", settings:"Settings", progress:"Completed", completed:"Done", overall:"Overall Progress",
+       countdown:"Exam Countdown", daysLeft:"days left", language:"Language", theme:"Theme", export:"Export Data",
+       import:"Import Data", reset:"Reset All", light:"Light", dark:"Dark", examReady:"Exam readiness"}
+};
 
-    <script>
-        const subjects = {
-            'পদার্থবিজ্ঞান': {
-                isEngineering: true,
-                color: 'physics',
-                checkboxCount: 4,
-                chapters: {
-                    '১ম পত্র': [
-                        'ভৌত জগৎ ও পরিমাপ', 'ভেক্টর', 'গতিবিদ্যা', 'নিউটনীয় বলবিদ্যা',
-                        'কাজ, ক্ষমতা ও শক্তি', 'মহাকর্ষ ও মহাকর্ষীয় ক্ষেত্র', 'পদার্থের গাঠনিক ধর্ম',
-                        'পর্যায়বৃত্ত গতি', 'তরঙ্গ', 'আদর্শ গ্যাস ও গ্যাসের গতিতত্ত্ব'
-                    ],
-                    '২য় পত্র': [
-                        'তাপগতিবিদ্যা', 'স্থির তড়িৎ', 'চল তড়িৎ', 'তড়িৎ প্রবাহের চৌম্বক ক্রিয়া ও চুম্বকত্ব',
-                        'তড়িচ্চুম্বকীয় আবেশ ও পরিবর্তী প্রবাহ', 'জ্যামিতিক আলোকবিজ্ঞান', 'ভৌত আলোকবিজ্ঞান',
-                        'আধুনিক পদার্থবিজ্ঞানের সূচনা', 'পরমাণুর মডেল ও নিউক্লিয়ার পদার্থবিজ্ঞান',
-                        'সেমিকন্ডাক্টর ও ইলেকট্রনিক্স', 'জ্যোতির্বিজ্ঞান'
-                    ]
-                }
-            },
-            'রসায়ন': {
-                isEngineering: true,
-                color: 'chemistry',
-                checkboxCount: 4,
-                chapters: {
-                    '১ম পত্র': [
-                        'ল্যাবরেটরিতে নিরাপত্তা ও পরিচ্ছন্নতা', 'গুণগত রসায়ন',
-                        'মৌলের পর্যায়বৃত্ত ধর্ম ও রাসায়নিক বন্ধন', 'রাসায়নিক পরিবর্তন', 'কর্মমুখী রসায়ন'
-                    ],
-                    '২য় পত্র': [
-                        'পরিবেশ রসায়ন', 'জৈব রসায়ন', 'পরিমাণগত রসায়ন',
-                        'রাসায়নিক গতিবিদ্যা ও রাসায়নিক সাম্যাবস্থা', 'তড়িৎ রসায়ন'
-                    ]
-                }
-            },
-            'উচ্চতর গণিত': {
-                isEngineering: true,
-                color: 'math',
-                checkboxCount: 4,
-                chapters: {
-                    '১ম পত্র': [
-                        'ম্যাট্রিক্স ও নির্ণায়ক', 'ভেক্টর', 'সরলরেখা', 'বৃত্ত', 'পরাবৃত্ত', 'কনিক',
-                        'ত্রিকোণমিতিক অনুপাত', 'ত্রিকোণমিতিক সমীকরণ', 'সমীকরণের প্রয়োগ',
-                        'অন্তরীকরণ', 'যোগজীকরণ', 'সমতল স্থানাঙ্ক জ্যামিতি'
-                    ],
-                    '২য় পত্র': [
-                        'জটিল সংখ্যা', 'বহুপদী ও আংশিক ভগ্নাংশ', 'সূচকীয় ও লগারিদমীয় ধারা', 'অসমতা',
-                        'কনিক', 'ত্রিমাত্রিক স্থানাঙ্ক জ্যামিতি', 'বিপরীত বৃত্তীয় ও বিপরীত অধিবৃত্তীয় ফাংশন',
-                        'বিন্যাস ও সমাবেশ', 'দ্বিপদী বিস্তৃতি', 'সম্ভাব্যতা', 'স্থিতিবিদ্যা', 'গতিবিদ্যা'
-                    ]
-                }
-            },
-            'জীববিজ্ঞান': {
-                isEngineering: false,
-                color: 'biology',
-                checkboxCount: 2,
-                chapters: {
-                    '১ম পত্র': [
-                        'কোষ ও এর গঠন', 'কোষ বিভাজন', 'কোষ রসায়ন', 'অণুজীব', 'শৈবাল ও ছত্রাক',
-                        'ব্রায়োফাইটা ও টেরিডোফাইটা', 'নগ্নবীজী ও আবৃতবীজী উদ্ভিদ', 'টিস্যু ও টিস্যুতন্ত্র',
-                        'উদ্ভিদের শারীরতত্ত্ব', 'উদ্ভিদের প্রজনন', 'জীবপ্রযুক্তি'
-                    ],
-                    '২য় পত্র': [
-                        'প্রাণীর বিভিন্নতা ও শ্রেণিবিন্যাস', 'মানব শারীরতত্ত্ব: পরিপাক ও শোষণ',
-                        'মানব শারীরতত্ত্ব: রক্ত ও সংবহন', 'মানব শারীরতত্ত্ব: শ্বসন ও শ্বাসক্রিয়া',
-                        'মানব শারীরতত্ত্ব: রেচন প্রক্রিয়া', 'মানব শারীরতত্ত্ব: চলন ও অঙ্গসঞ্চালন',
-                        'মানব শারীরতত্ত্ব: সমন্বয়', 'মানব শারীরতত্ত্ব: মানব জনন',
-                        'জীবের পরিবেশ, বিস্তার ও সংরক্ষণ', 'মানব কল্যাণে জীববিজ্ঞান',
-                        'জীবপ্রযুক্তি', 'বংশগতি ও বিবর্তন'
-                    ]
-                }
-            },
-            'বাংলা': {
-                isEngineering: false,
-                color: 'bangla',
-                checkboxCount: 2,
-                chapters: {
-                    'গদ্য': [
-                        'বাংলার নব্য লেখকদের প্রতি নিবেদন — বঙ্কিমচন্দ্র চট্টোপাধ্যায়',
-                        'অপরিচিতা — রবীন্দ্রনাথ ঠাকুর',
-                        'বিলাসী — শরৎচন্দ্র চট্টোপাধ্যায়',
-                        'গৃহ — বেগম রোকেয়া সাখাওয়াত হোসেন',
-                        'আহ্বান — বিভূতিভূষণ বন্দ্যোপাধ্যায়',
-                        'আমার পথ — কাজী নজরুল ইসলাম',
-                        'মাসি-পিসি — মানিক বন্দ্যোপাধ্যায়',
-                        'বায়ান্নর দিনগুলি — শেখ মুজিবুর রহমান',
-                        'জাদুঘরে কেন যাব — আনিসুজ্জামান',
-                        'রেইনকোট — আখতারুজ্জামান ইলিয়াস',
-                        'মহাজাগতিক কিউরেটর — মুহম্মদ জাফর ইকবাল',
-                        'নেকলেস — গি দ্য মোপাসাঁ'
-                    ],
-                    'কবিতা': [
-                        'বিভীষণের প্রতি মেঘনাদ — মাইকেল মধুসূদন দত্ত',
-                        'সোনার তরী — রবীন্দ্রনাথ ঠাকুর',
-                        'বিদ্রোহী — কাজী নজরুল ইসলাম',
-                        'প্রতিদান — জসীমউদ্দীন',
-                        'সূচনা — জীবনানন্দ দাশ',
-                        'তাহারেই পড়ে মনে — সুফিয়া কামাল',
-                        'পদ্মা — ফররুখ আহমদ',
-                        '১৮ বছর বয়স — সুকান্ত ভট্টাচার্য',
-                        'ফেব্রুয়ারি ১৯৬৯ — শামসুর রাহমান',
-                        'আমি কিংবদন্তির কথা বলছি — আবু জাফর ওবায়দুল্লাহ',
-                        'নুরুলদীনের কথা মনে পড়ে যায় — সৈয়দ শামসুল হক',
-                        'রক্তে আমার অনাদি অস্থি — আবুল হাসান'
-                    ],
-                    'সহপাঠ': [
-                        'লালসালু (উপন্যাস) — সৈয়দ ওয়ালীউল্লাহ্',
-                        'সিরাজউদ্দৌলা (নাটক) — সিকান্দার আবু জাফর'
-                    ],
-                    'ব্যাকরণ ও নির্মিতি': [
-                        'উচ্চারণ ও বানান',
-                        'ব্যাকরণিক শব্দশ্রেণি',
-                        'বাক্যতত্ত্ব',
-                        'আবেদনপত্র/ইমেইল',
-                        'প্রতিবেদন',
-                        'সারাংশ/সারমর্ম',
-                        'ভাবসম্প্রসারণ',
-                        'সংলাপ/অনুবাদ'
-                    ]
-                }
-            },
-            'English': {
-                isEngineering: false,
-                color: 'english',
-                checkboxCount: 2,
-                chapters: {
-                    'Reading': [
-                        'Unit 1: Nelson Mandela', 'Unit 2: Dreams & Dreamers',
-                        'Unit 3: Traffic Education', 'Unit 4: Food Adulteration',
-                        'Unit 5: Adolescence', 'Unit 6: Diaspora',
-                        'Unit 7: The River', 'Unit 8: Devotion',
-                        'Unit 9: Digital Bangladesh', 'Unit 10: Renewable Energy',
-                        'Unit 11: Heritage', 'Unit 12: Nakshi Kantha'
-                    ],
-                    'Writing': [
-                        'Formal Letter', 'Application', 'Email',
-                        'Paragraph', 'Composition', 'Summary',
-                        'Report', 'Dialogue'
-                    ]
-                }
-            },
-            'ICT': {
-                isEngineering: false,
-                color: 'ict',
-                checkboxCount: 2,
-                chapters: {
-                    'অধ্যায়': [
-                        'তথ্য ও যোগাযোগ প্রযুক্তি: বিশ্ব ও বাংলাদেশ',
-                        'কমিউনিকেশন সিস্টেমস ও নেটওয়ার্কিং',
-                        'সংখ্যা পদ্ধতি ও ডিজিটাল ডিভাইস',
-                        'ওয়েব ডিজাইন ও HTML',
-                        'প্রোগ্রামিং (C)',
-                        'ডেটাবেজ ম্যানেজমেন্ট'
-                    ]
-                }
-            }
+/* ========= Data (BUET weighted) ========= */
+const SUBJECTS = {
+  "Physics": {
+    chapters: [
+      {name:"Mechanics", weight:3},
+      {name:"Thermodynamics", weight:3},
+      {name:"Electricity", weight:3},
+      {name:"Optics", weight:2}
+    ],
+    tasks:["Main Book","Board Questions","Question Bank","Guide"]
+  },
+  "Chemistry": {
+    chapters: [
+      {name:"Organic",weight:3},
+      {name:"Physical",weight:3},
+      {name:"Inorganic",weight:2}
+    ],
+    tasks:["Main Book","Board Questions","Question Bank","Guide"]
+  },
+  "Higher Math": {
+    chapters: [
+      {name:"Integration",weight:3},
+      {name:"Differentiation",weight:3},
+      {name:"Coordinate Geometry",weight:2}
+    ],
+    tasks:["Main Book","Board Questions","Question Bank","Guide"]
+  },
+  "Biology": {
+    chapters: [
+      {name:"Cell Biology",weight:2},
+      {name:"Human Physiology",weight:2}
+    ],
+    tasks:["Main Book","Board Questions"]
+  }
+};
+
+const STORAGE_KEY = "hsc_buet_tracker_v2_single";
+
+/* ========= State ========= */
+let STATE = {
+  language:"bn",
+  theme:"light",
+  examDate:"2026-08-01",
+  subjects:{},
+  lastSaved:null
+};
+
+function initState(){
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if(saved){
+    try{ STATE = {...STATE, ...JSON.parse(saved)} }catch(e){}
+  }
+  // build subjects if missing
+  Object.entries(SUBJECTS).forEach(([s,info])=>{
+    if(!STATE.subjects[s]) STATE.subjects[s]={chapters:{}};
+    info.chapters.forEach(ch=>{
+      const id = slug(s+"_"+ch.name);
+      if(!STATE.subjects[s].chapters[id]){
+        STATE.subjects[s].chapters[id]={
+          name:ch.name, weight:ch.weight,
+          tasks: info.tasks.map(t=>({name:t,done:false})),
+          revision:0
         };
+      }
+    });
+  });
+  save();
+}
 
-        let chapterData = {};
-        let chapterIndex = 0;
+function save(){
+  STATE.lastSaved = new Date().toISOString();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(STATE));
+}
 
-        // Initialize data
-        Object.keys(subjects).forEach(subject => {
-            Object.keys(subjects[subject].chapters).forEach(paper => {
-                subjects[subject].chapters[paper].forEach(chapter => {
-                    const id = `chapter-${chapterIndex++}`;
-                    chapterData[id] = {
-                        subject,
-                        paper,
-                        chapter,
-                        isEngineering: subjects[subject].isEngineering,
-                        checkboxCount: subjects[subject].checkboxCount,
-                        mainBook: false,
-                        testPaper: false,
-                        questionBank: false,
-                        guidebook: false,
-                        revision: 0
-                    };
-                });
-            });
-        });
+function slug(s){ return s.toLowerCase().replace(/[^a-z0-9]+/g,"_"); }
 
-        // Load from localStorage
-        const saved = localStorage.getItem('hscTrackerData');
-        if (saved) {
-            const savedData = JSON.parse(saved);
-            Object.keys(savedData).forEach(id => {
-                if (chapterData[id]) {
-                    chapterData[id] = { ...chapterData[id], ...savedData[id] };
-                }
-            });
-        }
+/* ========= Progress Engine ========= */
+function chapterProgress(ch){
+  const total = ch.tasks.length;
+  const done = ch.tasks.filter(t=>t.done).length;
+  return total? Math.round(done/total*100):0;
+}
+function subjectProgress(subjectName){
+  const chs = Object.values(STATE.subjects[subjectName].chapters);
+  let num=0, den=0;
+  chs.forEach(ch=>{ num += chapterProgress(ch)*ch.weight; den += ch.weight; });
+  return den? Math.round(num/den):0;
+}
+function overallProgress(){
+  const subs = Object.keys(SUBJECTS);
+  if(!subs.length) return 0;
+  const sum = subs.reduce((a,s)=>a+subjectProgress(s),0);
+  return Math.round(sum/subs.length);
+}
 
-        function saveData() {
-            localStorage.setItem('hscTrackerData', JSON.stringify(chapterData));
-            updateStats();
-        }
+/* ========= UI ========= */
+let currentPage="dashboard";
 
-        function calculateProgress(id) {
-            const data = chapterData[id];
-            if (data.checkboxCount === 4) {
-                // Engineering subjects: 4 checkboxes = 25% each
-                const main = data.mainBook ? 25 : 0;
-                const test = data.testPaper ? 25 : 0;
-                const question = data.questionBank ? 25 : 0;
-                const guide = data.guidebook ? 25 : 0;
-                return main + test + question + guide;
-            } else {
-                // Board-only subjects: 2 checkboxes = 50% each
-                const main = data.mainBook ? 50 : 0;
-                const test = data.testPaper ? 50 : 0;
-                return main + test;
-            }
-        }
+function t(k){ return LANG[STATE.language][k] || k; }
 
-        function updateStats() {
-            const engineeringChapters = Object.keys(chapterData).filter(id => chapterData[id].isEngineering);
-            const allChapters = Object.keys(chapterData);
-            
-            const engineeringAvg = engineeringChapters.length > 0 
-                ? engineeringChapters.reduce((sum, id) => sum + calculateProgress(id), 0) / engineeringChapters.length 
-                : 0;
-            
-            const boardAvg = allChapters.reduce((sum, id) => sum + calculateProgress(id), 0) / allChapters.length;
-            const overall = boardAvg;
+function renderTabs(){
+  const tabs = document.getElementById("tabs");
+  tabs.innerHTML="";
+  const names=[["dashboard",t("dashboard")], ...Object.keys(SUBJECTS).map(s=>[s,s]), ["settings",t("settings")]];
+  names.forEach(([id,label])=>{
+    const b=document.createElement("button");
+    b.className="tab"+(currentPage===id?" active":"");
+    b.textContent=label;
+    b.onclick=()=>{currentPage=id; renderAll();};
+    tabs.appendChild(b);
+  });
+}
 
-            document.getElementById('engineering-progress').textContent = Math.round(engineeringAvg) + '%';
-            document.getElementById('board-progress').textContent = Math.round(boardAvg) + '%';
-            document.getElementById('overall-progress').textContent = Math.round(overall) + '%';
-        }
+function renderDashboard(){
+  const p = overallProgress();
+  const examDate = new Date(STATE.examDate);
+  const now = new Date();
+  const days = Math.max(0, Math.ceil((examDate-now)/(1000*60*60*24)));
 
-        function renderSubjects() {
-            const container = document.getElementById('subjects-container');
-            container.innerHTML = '';
+  let html = `
+  <div class="grid">
+    <div class="card">
+      <div class="muted">${t("overall")}</div>
+      <div class="big">${p}%</div>
+      <div class="muted">${t("examReady")}: ${p}%</div>
+    </div>
+    <div class="card">
+      <div class="muted">${t("countdown")}</div>
+      <div class="big">${days}</div>
+      <div class="muted">${t("daysLeft")}</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="muted">Subject Progress</div>
+  `;
+  Object.keys(SUBJECTS).forEach(s=>{
+    html += `<div class="row" style="margin-top:8px"><b>${s}</b><b>${subjectProgress(s)}%</b></div>`;
+  });
+  html += `</div>`;
+  return html;
+}
 
-            Object.keys(subjects).forEach(subject => {
-                const subjectData = subjects[subject];
-                const section = document.createElement('div');
-                section.className = 'subject-section';
-                section.dataset.isengineering = subjectData.isEngineering;
+function renderSubject(name){
+  let html=`<div class="card"><b>${name}</b> — ${subjectProgress(name)}%</div>`;
+  const chapters = Object.entries(STATE.subjects[name].chapters);
+  chapters.forEach(([id,ch])=>{
+    const prog = chapterProgress(ch);
+    html += `<div class="chapter">
+      <div class="row"><b>${ch.name}</b><span class="small">weight ${ch.weight}</span></div>`;
+    ch.tasks.forEach((task,idx)=>{
+      html += `<label class="task">
+        <input type="checkbox" ${task.done?"checked":""}
+          onchange="toggleTask('${name}','${id}',${idx},this.checked)">
+        <span>${task.name}</span>
+      </label>`;
+    });
+    html += `<div class="bar"><div class="fill" style="width:${prog}%"></div></div>
+             <div class="small">${prog}% ${t("progress")}</div>
+    </div>`;
+  });
+  return html;
+}
 
-                const chapterIds = Object.keys(chapterData).filter(id => 
-                    chapterData[id].subject === subject
-                );
-                const avgProgress = chapterIds.reduce((sum, id) => 
-                    sum + calculateProgress(id), 0) / chapterIds.length;
+function renderSettings(){
+  return `
+  <div class="card">
+    <div class="row">
+      <label>${t("language")}</label>
+      <select onchange="setLang(this.value)">
+        <option value="bn" ${STATE.language==="bn"?"selected":""}>বাংলা</option>
+        <option value="en" ${STATE.language==="en"?"selected":""}>English</option>
+      </select>
+    </div>
+  </div>
+  <div class="card">
+    <div class="row">
+      <label>${t("theme")}</label>
+      <select onchange="setTheme(this.value)">
+        <option value="light" ${STATE.theme==="light"?"selected":""}>${t("light")}</option>
+        <option value="dark" ${STATE.theme==="dark"?"selected":""}>${t("dark")}</option>
+      </select>
+    </div>
+  </div>
+  <div class="card">
+    <button class="btn" onclick="exportData()">${t("export")}</button>
+    <button class="btn" onclick="importData()" style="margin-left:8px">${t("import")}</button>
+    <button class="btn" onclick="resetAll()" style="margin-left:8px;background:#dc3545">${t("reset")}</button>
+  </div>
+  <div class="card small muted">Last saved: ${STATE.lastSaved || "-"}</div>
+  `;
+}
 
-                const engineeringBadge = subjectData.isEngineering ? ' 🎯' : '';
+function applyTheme(){
+  if(STATE.theme==="dark"){
+    document.documentElement.style.setProperty('--bg','#171717');
+    document.documentElement.style.setProperty('--card','#222');
+    document.documentElement.style.setProperty('--text','#f2f2f2');
+    document.documentElement.style.setProperty('--muted','#bdbdbd');
+  } else {
+    document.documentElement.style.setProperty('--bg','#f7f6f3');
+    document.documentElement.style.setProperty('--card','#fff');
+    document.documentElement.style.setProperty('--text','#37352f');
+    document.documentElement.style.setProperty('--muted','#787774');
+  }
+}
 
-                section.innerHTML = `
-                    <div class="subject-header ${subjectData.color}">
-                        <span>${subject}${engineeringBadge} (${chapterIds.length})</span>
-                        <span class="progress-badge">${Math.round(avgProgress)}%</span>
-                    </div>
-                `;
+function renderAll(){
+  applyTheme();
+  document.getElementById("subtitle").textContent = "Single-file GitHub version • auto-saved locally";
+  renderTabs();
+  const page = document.getElementById("page");
+  if(currentPage==="dashboard") page.innerHTML = renderDashboard();
+  else if(currentPage==="settings") page.innerHTML = renderSettings();
+  else page.innerHTML = renderSubject(currentPage);
+}
 
-                const chapterList = document.createElement('div');
+/* ========= Actions ========= */
+function toggleTask(subject,id,idx,val){
+  STATE.subjects[subject].chapters[id].tasks[idx].done = val;
+  save();
+  renderAll();
+}
+function setLang(v){ STATE.language=v; save(); renderAll(); }
+function setTheme(v){ STATE.theme=v; save(); renderAll(); }
 
-                Object.keys(subjectData.chapters).forEach(paper => {
-                    subjectData.chapters[paper].forEach(chapter => {
-                        const id = Object.keys(chapterData).find(key => 
-                            chapterData[key].subject === subject &&
-                            chapterData[key].paper === paper &&
-                            chapterData[key].chapter === chapter
-                        );
+function exportData(){
+  const blob = new Blob([JSON.stringify(STATE,null,2)], {type:"application/json"});
+  const a=document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "hsc_tracker_backup.json";
+  a.click();
+}
+function importData(){
+  const inp=document.createElement("input");
+  inp.type="file"; inp.accept=".json";
+  inp.onchange=e=>{
+    const f=e.target.files[0]; if(!f) return;
+    const r=new FileReader();
+    r.onload=()=>{
+      try{
+        STATE = {...STATE, ...JSON.parse(r.result)};
+        save(); renderAll();
+        alert("Imported successfully.");
+      }catch(err){ alert("Invalid file."); }
+    };
+    r.readAsText(f);
+  };
+  inp.click();
+}
+function resetAll(){
+  if(confirm("Reset all progress?")){
+    localStorage.removeItem(STORAGE_KEY);
+    location.reload();
+  }
+}
 
-                        if (!id) return;
-
-                        const data = chapterData[id];
-                        const progress = calculateProgress(id);
-
-                        const card = document.createElement('div');
-                        card.className = 'chapter-card';
-                        card.dataset.id = id;
-
-                        const checkboxes = data.checkboxCount === 4 ? `
-                            <label class="checkbox-item">
-                                <input type="checkbox" ${data.mainBook ? 'checked' : ''} 
-                                    onchange="updateCheckbox('${id}', 'mainBook', this.checked)">
-                                <span class="checkbox-label">মূল বই</span>
-                            </label>
-                            
-                            <label class="checkbox-item">
-                                <input type="checkbox" ${data.testPaper ? 'checked' : ''} 
-                                    onchange="updateCheckbox('${id}', 'testPaper', this.checked)">
-                                <span class="checkbox-label">টেস্ট পেপার</span>
-                            </label>
-                            
-                            <label class="checkbox-item">
-                                <input type="checkbox" ${data.questionBank ? 'checked' : ''} 
-                                    onchange="updateCheckbox('${id}', 'questionBank', this.checked)">
-                                <span class="checkbox-label">প্রশ্নব্যাংক</span>
-                            </label>
-                            
-                            <label class="checkbox-item">
-                                <input type="checkbox" ${data.guidebook ? 'checked' : ''} 
-                                    onchange="updateCheckbox('${id}', 'guidebook', this.checked)">
-                                <span class="checkbox-label">গাইড বই</span>
-                            </label>
-                        ` : `
-                            <label class="checkbox-item">
-                                <input type="checkbox" ${data.mainBook ? 'checked' : ''} 
-                                    onchange="updateCheckbox('${id}', 'mainBook', this.checked)">
-                                <span class="checkbox-label">মূল বই</span>
-                            </label>
-                            
-                            <label class="checkbox-item">
-                                <input type="checkbox" ${data.testPaper ? 'checked' : ''} 
-                                    onchange="updateCheckbox('${id}', 'testPaper', this.checked)">
-                                <span class="checkbox-label">বোর্ড প্রশ্ন</span>
-                            </label>
-                        `;
-
-                        card.innerHTML = `
-                            <div class="chapter-header">
-                                <div class="chapter-name">${chapter}</div>
-                                <div class="paper-tag">${paper}</div>
-                            </div>
-                            
-                            <div class="checkboxes-grid">
-                                ${checkboxes}
-                            </div>
-
-                            <div class="revision-section">
-                                <span class="revision-label">রিভিশন (১-১০)</span>
-                                <div class="revision-controls">
-                                    <button class="revision-btn" onclick="changeRevision('${id}', -1)">−</button>
-                                    <span class="revision-value">${data.revision}</span>
-                                    <button class="revision-btn" onclick="changeRevision('${id}', 1)">+</button>
-                                </div>
-                            </div>
-
-                            <div class="progress-section">
-                                <div class="progress-bar">
-                                    <div class="progress-fill" style="width: ${progress}%"></div>
-                                </div>
-                                <div class="progress-text">${progress}% সম্পন্ন</div>
-                            </div>
-                        `;
-
-                        chapterList.appendChild(card);
-                    });
-                });
-
-                section.appendChild(chapterList);
-                container.appendChild(section);
-            });
-
-            updateStats();
-        }
-
-        function renderSettings() {
-            const container = document.getElementById('settings-container');
-            container.innerHTML = `
-                <div class="settings-section">
-                    <h2 class="settings-title">⚙️ Settings & Help</h2>
-                    
-                    <div class="setting-item">
-                        <h3>📱 Add to Home Screen (iOS - iPhone/iPad)</h3>
-                        <ol>
-                            <li>Open this page in <strong>Safari</strong></li>
-                            <li>Tap the <strong>Share button</strong> (📤) at the bottom</li>
-                            <li>Scroll down and tap <strong>"Add to Home Screen"</strong></li>
-                            <li>Tap <strong>"Add"</strong> in the top right</li>
-                            <li>The app icon will appear on your home screen!</li>
-                        </ol>
-                    </div>
-
-                    <div class="setting-item">
-                        <h3>🤖 Add to Home Screen (Android)</h3>
-                        <ol>
-                            <li>Open this page in <strong>Chrome</strong></li>
-                            <li>Tap the <strong>three dots menu</strong> (⋮) at top right</li>
-                            <li>Tap <strong>"Add to Home screen"</strong></li>
-                            <li>Tap <strong>"Add"</strong></li>
-                            <li>The app will be on your home screen!</li>
-                        </ol>
-                    </div>
-
-                    <div class="setting-item">
-                        <h3>🔢 Checkbox System</h3>
-                        <p><strong>Engineering Subjects</strong> (Physics, Chemistry, Higher Math):</p>
-                        <p>4 checkboxes = 25% each:</p>
-                        <ul>
-                            <li>মূল বই (25%) - Main textbook reading</li>
-                            <li>টেস্ট পেপার (25%) - Test papers practice</li>
-                            <li>প্রশ্নব্যাংক (25%) - Engineering question bank (BUET/KUET/RUET)</li>
-                            <li>গাইড বই (25%) - Concept/Guide books</li>
-                        </ul>
-                        <p><strong>Board Subjects</strong> (Biology, Bangla, English, ICT):</p>
-                        <p>2 checkboxes = 50% each:</p>
-                        <ul>
-                            <li>মূল বই (50%) - Main textbook</li>
-                            <li>বোর্ড প্রশ্ন (50%) - Board questions</li>
-                        </ul>
-                        <p><strong>Revision Counter:</strong> Track how many times you've revised (1-10)</p>
-                    </div>
-
-                    <div class="setting-item">
-                        <h3>💾 Data Storage</h3>
-                        <p>Your progress is automatically saved in your browser's local storage. It will persist even if you close the browser or restart your device.</p>
-                        <p><strong>⚠️ Warning:</strong> Don't clear browser data or your progress will be lost!</p>
-                    </div>
-
-                    <div class="setting-item">
-                        <h3>🗑️ Reset All Data</h3>
-                        <p>Click this button to clear all checkmarks and reset everything to 0%. This cannot be undone!</p>
-                        <button class="danger-btn" onclick="clearAllData()">Clear All Progress</button>
-                    </div>
-
-                    <div class="setting-item">
-                        <h3>ℹ️ About</h3>
-                        <p><strong>HSC BUET Tracker</strong> - Version 1.0</p>
-                        <p>A comprehensive tracker for HSC students preparing for BUET admission and board exams.</p>
-                        <p>Total Chapters: ${Object.keys(chapterData).length}</p>
-                        <p>Engineering Subjects: ${Object.keys(chapterData).filter(id => chapterData[id].isEngineering).length} chapters</p>
-                        <p>All Subjects are Board exam subjects</p>
-                    </div>
-                </div>
-            `;
-        }
-
-        function updateCheckbox(id, field, value) {
-            chapterData[id][field] = value;
-            saveData();
-            renderSubjects();
-        }
-
-        function changeRevision(id, delta) {
-            const newValue = chapterData[id].revision + delta;
-            chapterData[id].revision = Math.max(0, Math.min(10, newValue));
-            saveData();
-            renderSubjects();
-        }
-
-        function clearAllData() {
-            if (confirm('আপনি কি নিশ্চিত যে সব progress মুছে ফেলতে চান? এটি undo করা যাবে না!')) {
-                if (confirm('শেষবার নিশ্চিত করুন: সব data মুছে যাবে!')) {
-                    Object.keys(chapterData).forEach(id => {
-                        chapterData[id].mainBook = false;
-                        chapterData[id].testPaper = false;
-                        chapterData[id].questionBank = false;
-                        chapterData[id].guidebook = false;
-                        chapterData[id].revision = 0;
-                    });
-                    saveData();
-                    renderSubjects();
-                    alert('সব data মুছে ফেলা হয়েছে!');
-                }
-            }
-        }
-
-        // Tab switching
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-
-                const view = tab.dataset.view;
-                
-                if (view === 'settings') {
-                    document.getElementById('subjects-container').classList.add('hidden');
-                    document.getElementById('settings-container').classList.remove('hidden');
-                    renderSettings();
-                    return;
-                }
-
-                document.getElementById('subjects-container').classList.remove('hidden');
-                document.getElementById('settings-container').classList.add('hidden');
-
-                const sections = document.querySelectorAll('.subject-section');
-
-                sections.forEach(section => {
-                    if (view === 'all') {
-                        section.classList.remove('hidden');
-                    } else if (view === 'engineering') {
-                        section.classList.toggle('hidden', section.dataset.isengineering !== 'true');
-                    } else if (view === 'board') {
-                        section.classList.remove('hidden');
-                    } else if (view === 'incomplete') {
-                        const cards = section.querySelectorAll('.chapter-card');
-                        let hasIncomplete = false;
-                        cards.forEach(card => {
-                            const id = card.dataset.id;
-                            const progress = calculateProgress(id);
-                            if (progress < 100) {
-                                hasIncomplete = true;
-                                card.classList.remove('hidden');
-                            } else {
-                                card.classList.add('hidden');
-                            }
-                        });
-                        section.classList.toggle('hidden', !hasIncomplete);
-                    }
-                });
-            });
-        });
-
-        // Search
-        document.getElementById('search').addEventListener('input', (e) => {
-            const query = e.target.value.toLowerCase();
-            document.querySelectorAll('.chapter-card').forEach(card => {
-                const text = card.textContent.toLowerCase();
-                card.classList.toggle('hidden', !text.includes(query));
-            });
-        });
-
-        renderSubjects();
-    </script>
+/* ========= Boot ========= */
+initState();
+renderAll();
+</script>
 </body>
 </html>
