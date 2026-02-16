@@ -3,197 +3,319 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>HSC BUET Tracker v2.5 Elite (Single File)</title>
+<title>HSC BUET Tracker v2 Pro (Single File)</title>
 <style>
 :root{
- --bg:#f6f7fb; --card:#fff; --text:#222; --muted:#666;
- --accent:#667eea; --accent2:#764ba2; --ok:#27ae60; --warn:#f39c12;
+  --bg:#f7f6f3; --card:#fff; --text:#37352f; --muted:#787774;
+  --accent:#667eea; --accent2:#764ba2; --ok:#25a55f;
 }
 *{box-sizing:border-box}
 body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text)}
-header{position:sticky;top:0;z-index:50;padding:14px 16px;color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 4px 14px rgba(0,0,0,.2)}
-h1{margin:0;font-size:20px}
-.sub{opacity:.9;font-size:12px}
-.tabs{display:flex;gap:8px;overflow:auto;padding:10px;background:#fff;border-bottom:1px solid #ececec}
-.tab{border:none;background:#f1f2f6;padding:8px 12px;border-radius:10px;white-space:nowrap;cursor:pointer}
+.header{position:sticky;top:0;z-index:20;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;padding:16px 18px;box-shadow:0 4px 12px rgba(0,0,0,.18)}
+.header h1{margin:0 0 4px;font-size:20px}
+.header .sub{font-size:12px;opacity:.9}
+.tabs{display:flex;gap:8px;padding:12px;overflow:auto;background:#fff;border-bottom:1px solid #eee}
+.tab{border:none;background:#f0efec;padding:9px 12px;border-radius:8px;white-space:nowrap;cursor:pointer}
 .tab.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
-.container{max-width:980px;margin:0 auto;padding:12px}
-.card{background:var(--card);border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.container{max-width:980px;margin:0 auto;padding:14px}
+.card{background:var(--card);border-radius:12px;padding:14px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.muted{color:var(--muted);font-size:13px}
+.big{font-size:36px;font-weight:700;color:var(--accent)}
 .grid{display:grid;grid-template-columns:1fr;gap:10px}
 @media(min-width:760px){.grid{grid-template-columns:1fr 1fr}}
-.big{font-size:36px;font-weight:700;color:var(--accent)}
-.row{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.muted{color:var(--muted);font-size:13px}
-.chapter{background:#fff;border-radius:12px;padding:12px;margin:10px 0;box-shadow:0 2px 8px rgba(0,0,0,.07);animation:fade .25s ease}
-@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
-.task{display:flex;align-items:center;gap:8px;background:#fafbff;border:1px solid #eef0ff;padding:8px;border-radius:8px;margin-top:7px}
-.bar{height:8px;background:#ececec;border-radius:6px;overflow:hidden;margin-top:10px}
-.fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--ok));transition:width .25s}
-.btn{border:none;background:var(--accent);color:#fff;padding:8px 10px;border-radius:8px;cursor:pointer}
-input[type=search]{width:100%;padding:10px;border-radius:10px;border:1px solid #ddd}
-.ring{width:110px;height:110px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--accent) calc(var(--p)*1%), #e8e8e8 0)}
-.ring > div{width:78px;height:78px;border-radius:50%;background:var(--card);display:grid;place-items:center;font-weight:700}
+.chapter{background:#fff;border-radius:12px;padding:12px;margin:10px 0;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.task{display:flex;align-items:center;gap:8px;background:#fafaf9;padding:8px;border-radius:8px;margin-top:8px}
+.bar{height:8px;background:#e9e9e7;border-radius:4px;overflow:hidden;margin-top:10px}
+.fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--ok))}
 .small{font-size:12px}
+.btn{border:none;background:var(--accent);color:#fff;padding:8px 10px;border-radius:8px;cursor:pointer}
+select{padding:6px;border-radius:8px;border:1px solid #ddd}
+.hidden{display:none}
 </style>
 </head>
 <body>
-<header>
-  <h1>📚 HSC BUET Tracker v2.5 Elite</h1>
-  <div class="sub">Single-file • animations • smart targets • searchable</div>
-</header>
+<div class="header">
+  <h1>📚 HSC BUET Tracker v2 PRO</h1>
+  <div class="sub" id="subtitle"></div>
+</div>
 
 <div class="tabs" id="tabs"></div>
 
-<div class="container"><div id="page"></div></div>
+<div class="container">
+  <div id="page"></div>
+</div>
 
 <script>
-const SUBJECTS={
- "Physics":{tasks:["Main Book","Board Questions","Question Bank","Guide"],chapters:[
-  {name:"Mechanics",weight:3},{name:"Thermodynamics",weight:3},{name:"Electricity",weight:3},{name:"Optics",weight:2}]},
- "Chemistry":{tasks:["Main Book","Board Questions","Question Bank","Guide"],chapters:[
-  {name:"Organic",weight:3},{name:"Physical",weight:3},{name:"Inorganic",weight:2}]},
- "Higher Math":{tasks:["Main Book","Board Questions","Question Bank","Guide"],chapters:[
-  {name:"Integration",weight:3},{name:"Differentiation",weight:3},{name:"Geometry",weight:2}]},
- "Biology":{tasks:["Main Book","Board Questions"],chapters:[
-  {name:"Cell Biology",weight:2},{name:"Human Physiology",weight:2}]}
+/* ========= i18n ========= */
+const LANG = {
+  bn: {dashboard:"ড্যাশবোর্ড", settings:"সেটিংস", progress:"সম্পন্ন", completed:"শেষ", overall:"সামগ্রিক অগ্রগতি",
+       countdown:"পরীক্ষার কাউন্টডাউন", daysLeft:"দিন বাকি", language:"ভাষা", theme:"থিম", export:"Export Data",
+       import:"Import Data", reset:"Reset All", light:"Light", dark:"Dark", examReady:"Exam readiness"},
+  en: {dashboard:"Dashboard", settings:"Settings", progress:"Completed", completed:"Done", overall:"Overall Progress",
+       countdown:"Exam Countdown", daysLeft:"days left", language:"Language", theme:"Theme", export:"Export Data",
+       import:"Import Data", reset:"Reset All", light:"Light", dark:"Dark", examReady:"Exam readiness"}
 };
-const KEY="hsc_tracker_v25_elite";
-let STATE={theme:"light",examDate:"2026-08-01",subjects:{},search:""};
-let page="dashboard";
 
-function slug(s){return s.toLowerCase().replace(/[^a-z0-9]+/g,"_")}
-function init(){
- const s=localStorage.getItem(KEY); if(s){try{STATE={...STATE,...JSON.parse(s)}}catch(e){}}
- Object.entries(SUBJECTS).forEach(([sn,si])=>{
-  if(!STATE.subjects[sn]) STATE.subjects[sn]={chapters:{}};
-  si.chapters.forEach(ch=>{
-   const id=slug(sn+"_"+ch.name);
-   if(!STATE.subjects[sn].chapters[id]){
-    STATE.subjects[sn].chapters[id]={name:ch.name,weight:ch.weight,revision:0,
-     tasks:si.tasks.map(t=>({name:t,done:false}))};
-   }
+/* ========= Data (BUET weighted) ========= */
+const SUBJECTS = {
+  "Physics": {
+    chapters: [
+      {name:"Mechanics", weight:3},
+      {name:"Thermodynamics", weight:3},
+      {name:"Electricity", weight:3},
+      {name:"Optics", weight:2}
+    ],
+    tasks:["Main Book","Board Questions","Question Bank","Guide"]
+  },
+  "Chemistry": {
+    chapters: [
+      {name:"Organic",weight:3},
+      {name:"Physical",weight:3},
+      {name:"Inorganic",weight:2}
+    ],
+    tasks:["Main Book","Board Questions","Question Bank","Guide"]
+  },
+  "Higher Math": {
+    chapters: [
+      {name:"Integration",weight:3},
+      {name:"Differentiation",weight:3},
+      {name:"Coordinate Geometry",weight:2}
+    ],
+    tasks:["Main Book","Board Questions","Question Bank","Guide"]
+  },
+  "Biology": {
+    chapters: [
+      {name:"Cell Biology",weight:2},
+      {name:"Human Physiology",weight:2}
+    ],
+    tasks:["Main Book","Board Questions"]
+  }
+};
+
+const STORAGE_KEY = "hsc_buet_tracker_v2_single";
+
+/* ========= State ========= */
+let STATE = {
+  language:"bn",
+  theme:"light",
+  examDate:"2026-08-01",
+  subjects:{},
+  lastSaved:null
+};
+
+function initState(){
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if(saved){
+    try{ STATE = {...STATE, ...JSON.parse(saved)} }catch(e){}
+  }
+  // build subjects if missing
+  Object.entries(SUBJECTS).forEach(([s,info])=>{
+    if(!STATE.subjects[s]) STATE.subjects[s]={chapters:{}};
+    info.chapters.forEach(ch=>{
+      const id = slug(s+"_"+ch.name);
+      if(!STATE.subjects[s].chapters[id]){
+        STATE.subjects[s].chapters[id]={
+          name:ch.name, weight:ch.weight,
+          tasks: info.tasks.map(t=>({name:t,done:false})),
+          revision:0
+        };
+      }
+    });
   });
- });
- save();
+  save();
 }
-function save(){localStorage.setItem(KEY,JSON.stringify(STATE))}
 
-function chProg(ch){const t=ch.tasks.length,d=ch.tasks.filter(x=>x.done).length;return Math.round(d/t*100)}
-function subProg(name){
- let num=0,den=0;
- Object.values(STATE.subjects[name].chapters).forEach(ch=>{num+=chProg(ch)*ch.weight;den+=ch.weight});
- return den?Math.round(num/den):0;
+function save(){
+  STATE.lastSaved = new Date().toISOString();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(STATE));
 }
-function overall(){const s=Object.keys(SUBJECTS);return Math.round(s.reduce((a,n)=>a+subProg(n),0)/s.length)}
+
+function slug(s){ return s.toLowerCase().replace(/[^a-z0-9]+/g,"_"); }
+
+/* ========= Progress Engine ========= */
+function chapterProgress(ch){
+  const total = ch.tasks.length;
+  const done = ch.tasks.filter(t=>t.done).length;
+  return total? Math.round(done/total*100):0;
+}
+function subjectProgress(subjectName){
+  const chs = Object.values(STATE.subjects[subjectName].chapters);
+  let num=0, den=0;
+  chs.forEach(ch=>{ num += chapterProgress(ch)*ch.weight; den += ch.weight; });
+  return den? Math.round(num/den):0;
+}
+function overallProgress(){
+  const subs = Object.keys(SUBJECTS);
+  if(!subs.length) return 0;
+  const sum = subs.reduce((a,s)=>a+subjectProgress(s),0);
+  return Math.round(sum/subs.length);
+}
+
+/* ========= UI ========= */
+let currentPage="dashboard";
+
+function t(k){ return LANG[STATE.language][k] || k; }
 
 function renderTabs(){
- const el=document.getElementById("tabs"); el.innerHTML="";
- [["dashboard","Dashboard"],...Object.keys(SUBJECTS).map(s=>[s,s]),["settings","Settings"]].forEach(([id,label])=>{
-  const b=document.createElement("button");
-  b.className="tab"+(page===id?" active":"");
-  b.textContent=label; b.onclick=()=>{page=id;renderAll()};
-  el.appendChild(b);
- });
+  const tabs = document.getElementById("tabs");
+  tabs.innerHTML="";
+  const names=[["dashboard",t("dashboard")], ...Object.keys(SUBJECTS).map(s=>[s,s]), ["settings",t("settings")]];
+  names.forEach(([id,label])=>{
+    const b=document.createElement("button");
+    b.className="tab"+(currentPage===id?" active":"");
+    b.textContent=label;
+    b.onclick=()=>{currentPage=id; renderAll();};
+    tabs.appendChild(b);
+  });
 }
-function daysLeft(){
- const e=new Date(STATE.examDate), n=new Date();
- return Math.max(0,Math.ceil((e-n)/(1000*60*60*24)));
-}
-function smartTarget(){
- let totalCh=0,done=0;
- Object.keys(SUBJECTS).forEach(s=>{
-  Object.values(STATE.subjects[s].chapters).forEach(ch=>{totalCh++; if(chProg(ch)===100) done++;});
- });
- const remaining=Math.max(0,totalCh-done);
- const d=Math.max(1,daysLeft());
- return (remaining/d).toFixed(2);
-}
-function weakest(){
- let w={n:null,p:999};
- Object.keys(SUBJECTS).forEach(s=>{const p=subProg(s); if(p<w.p){w={n:s,p}}});
- return w;
-}
-function ring(p){return `<div class="ring" style="--p:${p}"><div>${p}%</div></div>`}
 
 function renderDashboard(){
- const p=overall(), w=weakest();
- return `
- <div class="grid">
-  <div class="card"><div class="row"><div>
-    <div class="muted">Overall Progress</div>
-    <div class="big">${p}%</div>
-    <div class="muted">Smart target: ~${smartTarget()} chapters/day</div>
-  </div>${ring(p)}</div></div>
-  <div class="card">
-    <div class="muted">Exam Countdown</div>
-    <div class="big">${daysLeft()}</div>
-    <div class="muted">days left • Weakest subject: ${w.n} (${w.p}%)</div>
+  const p = overallProgress();
+  const examDate = new Date(STATE.examDate);
+  const now = new Date();
+  const days = Math.max(0, Math.ceil((examDate-now)/(1000*60*60*24)));
+
+  let html = `
+  <div class="grid">
+    <div class="card">
+      <div class="muted">${t("overall")}</div>
+      <div class="big">${p}%</div>
+      <div class="muted">${t("examReady")}: ${p}%</div>
+    </div>
+    <div class="card">
+      <div class="muted">${t("countdown")}</div>
+      <div class="big">${days}</div>
+      <div class="muted">${t("daysLeft")}</div>
+    </div>
   </div>
- </div>
- <div class="card">
-   <div class="muted">Subject Progress</div>
-   ${Object.keys(SUBJECTS).map(s=>`<div class="row" style="margin-top:8px"><b>${s}</b><b>${subProg(s)}%</b></div>`).join("")}
- </div>`;
+  <div class="card">
+    <div class="muted">Subject Progress</div>
+  `;
+  Object.keys(SUBJECTS).forEach(s=>{
+    html += `<div class="row" style="margin-top:8px"><b>${s}</b><b>${subjectProgress(s)}%</b></div>`;
+  });
+  html += `</div>`;
+  return html;
 }
 
 function renderSubject(name){
- const chs=Object.entries(STATE.subjects[name].chapters);
- const filtered=chs.filter(([id,ch])=>ch.name.toLowerCase().includes(STATE.search.toLowerCase()));
- return `
- <div class="card">
-   <div class="row"><b>${name}</b><b>${subProg(name)}%</b></div>
-   <input type="search" placeholder="Search chapter..." value="${STATE.search}"
-     oninput="setSearch(this.value)">
- </div>
- ${filtered.map(([id,ch])=>{
-   const p=chProg(ch);
-   return `<div class="chapter">
-     <div class="row"><b>${ch.name}</b><span class="small">weight ${ch.weight}</span></div>
-     ${ch.tasks.map((t,i)=>`<label class="task"><input type="checkbox" ${t.done?"checked":""}
-      onchange="toggle('${name}','${id}',${i},this.checked)"><span>${t.name}</span></label>`).join("")}
-     <div class="bar"><div class="fill" style="width:${p}%"></div></div>
-     <div class="small">${p}% completed</div>
-   </div>`
- }).join("")}
- `;
+  let html=`<div class="card"><b>${name}</b> — ${subjectProgress(name)}%</div>`;
+  const chapters = Object.entries(STATE.subjects[name].chapters);
+  chapters.forEach(([id,ch])=>{
+    const prog = chapterProgress(ch);
+    html += `<div class="chapter">
+      <div class="row"><b>${ch.name}</b><span class="small">weight ${ch.weight}</span></div>`;
+    ch.tasks.forEach((task,idx)=>{
+      html += `<label class="task">
+        <input type="checkbox" ${task.done?"checked":""}
+          onchange="toggleTask('${name}','${id}',${idx},this.checked)">
+        <span>${task.name}</span>
+      </label>`;
+    });
+    html += `<div class="bar"><div class="fill" style="width:${prog}%"></div></div>
+             <div class="small">${prog}% ${t("progress")}</div>
+    </div>`;
+  });
+  return html;
 }
 
 function renderSettings(){
- return `<div class="card">
- <button class="btn" onclick="exportData()">Export Backup</button>
- <button class="btn" onclick="importData()" style="margin-left:8px">Import Backup</button>
- <button class="btn" onclick="resetAll()" style="margin-left:8px;background:#d9534f">Reset</button>
- <div class="muted" style="margin-top:10px">Everything saves automatically in your browser.</div>
- </div>`;
+  return `
+  <div class="card">
+    <div class="row">
+      <label>${t("language")}</label>
+      <select onchange="setLang(this.value)">
+        <option value="bn" ${STATE.language==="bn"?"selected":""}>বাংলা</option>
+        <option value="en" ${STATE.language==="en"?"selected":""}>English</option>
+      </select>
+    </div>
+  </div>
+  <div class="card">
+    <div class="row">
+      <label>${t("theme")}</label>
+      <select onchange="setTheme(this.value)">
+        <option value="light" ${STATE.theme==="light"?"selected":""}>${t("light")}</option>
+        <option value="dark" ${STATE.theme==="dark"?"selected":""}>${t("dark")}</option>
+      </select>
+    </div>
+  </div>
+  <div class="card">
+    <button class="btn" onclick="exportData()">${t("export")}</button>
+    <button class="btn" onclick="importData()" style="margin-left:8px">${t("import")}</button>
+    <button class="btn" onclick="resetAll()" style="margin-left:8px;background:#dc3545">${t("reset")}</button>
+  </div>
+  <div class="card small muted">Last saved: ${STATE.lastSaved || "-"}</div>
+  `;
+}
+
+function applyTheme(){
+  if(STATE.theme==="dark"){
+    document.documentElement.style.setProperty('--bg','#171717');
+    document.documentElement.style.setProperty('--card','#222');
+    document.documentElement.style.setProperty('--text','#f2f2f2');
+    document.documentElement.style.setProperty('--muted','#bdbdbd');
+  } else {
+    document.documentElement.style.setProperty('--bg','#f7f6f3');
+    document.documentElement.style.setProperty('--card','#fff');
+    document.documentElement.style.setProperty('--text','#37352f');
+    document.documentElement.style.setProperty('--muted','#787774');
+  }
 }
 
 function renderAll(){
- renderTabs();
- const p=document.getElementById("page");
- if(page==="dashboard") p.innerHTML=renderDashboard();
- else if(page==="settings") p.innerHTML=renderSettings();
- else p.innerHTML=renderSubject(page);
+  applyTheme();
+  document.getElementById("subtitle").textContent = "Single-file GitHub version • auto-saved locally";
+  renderTabs();
+  const page = document.getElementById("page");
+  if(currentPage==="dashboard") page.innerHTML = renderDashboard();
+  else if(currentPage==="settings") page.innerHTML = renderSettings();
+  else page.innerHTML = renderSubject(currentPage);
 }
 
-function toggle(s,id,i,v){STATE.subjects[s].chapters[id].tasks[i].done=v; save(); renderAll();}
-function setSearch(v){STATE.search=v; renderAll();}
+/* ========= Actions ========= */
+function toggleTask(subject,id,idx,val){
+  STATE.subjects[subject].chapters[id].tasks[idx].done = val;
+  save();
+  renderAll();
+}
+function setLang(v){ STATE.language=v; save(); renderAll(); }
+function setTheme(v){ STATE.theme=v; save(); renderAll(); }
+
 function exportData(){
- const blob=new Blob([JSON.stringify(STATE,null,2)],{type:"application/json"});
- const a=document.createElement("a");
- a.href=URL.createObjectURL(blob); a.download="hsc_tracker_v25_backup.json"; a.click();
+  const blob = new Blob([JSON.stringify(STATE,null,2)], {type:"application/json"});
+  const a=document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "hsc_tracker_backup.json";
+  a.click();
 }
 function importData(){
- const inp=document.createElement("input"); inp.type="file"; inp.accept=".json";
- inp.onchange=e=>{
-  const f=e.target.files[0]; if(!f) return;
-  const r=new FileReader();
-  r.onload=()=>{try{STATE={...STATE,...JSON.parse(r.result)}; save(); renderAll(); alert("Imported");}catch(e){alert("Invalid file")}}
-  r.readAsText(f);
- }; inp.click();
+  const inp=document.createElement("input");
+  inp.type="file"; inp.accept=".json";
+  inp.onchange=e=>{
+    const f=e.target.files[0]; if(!f) return;
+    const r=new FileReader();
+    r.onload=()=>{
+      try{
+        STATE = {...STATE, ...JSON.parse(r.result)};
+        save(); renderAll();
+        alert("Imported successfully.");
+      }catch(err){ alert("Invalid file."); }
+    };
+    r.readAsText(f);
+  };
+  inp.click();
 }
-function resetAll(){ if(confirm("Reset everything?")){localStorage.removeItem(KEY); location.reload();}}
+function resetAll(){
+  if(confirm("Reset all progress?")){
+    localStorage.removeItem(STORAGE_KEY);
+    location.reload();
+  }
+}
 
-init(); renderAll();
+/* ========= Boot ========= */
+initState();
+renderAll();
 </script>
 </body>
 </html>
