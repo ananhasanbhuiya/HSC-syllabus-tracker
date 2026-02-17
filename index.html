@@ -5,30 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#667eea">
-    <title>HSC BUET Tracker</title>
+    <meta name="theme-color" content="#0f0f1a">
+    <meta name="description" content="HSC BUET Tracker — Chapter-wise study progress tracker for HSC science students in Bangladesh">
+    <title>📚 HSC BUET Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="header">
-        <h1>📚 HSC BUET Tracker</h1>
-        <p>Subject-wise progress tracking</p>
-    </div>
+    <header class="header">
+        <div class="header-left">
+            <h1>📚 HSC BUET Tracker</h1>
+            <p id="countdown-display">লোড হচ্ছে...</p>
+        </div>
+        <div class="header-right" id="overall-badge">0%</div>
+    </header>
 
     <nav id="nav-tabs" class="nav-tabs">
         <button class="nav-tab active" data-page="dashboard">📊 Dashboard</button>
-        <button class="nav-tab" data-page="physics">পদার্থবিজ্ঞান</button>
-        <button class="nav-tab" data-page="chemistry">রসায়ন</button>
-        <button class="nav-tab" data-page="math">উচ্চতর গণিত</button>
-        <button class="nav-tab" data-page="biology">জীববিজ্ঞান</button>
-        <button class="nav-tab" data-page="bangla">বাংলা</button>
-        <button class="nav-tab" data-page="english">English</button>
-        <button class="nav-tab" data-page="ict">ICT</button>
-        <button class="nav-tab" data-page="settings">⚙️ Settings</button>
+        <button class="nav-tab" data-page="physics">⚛️ পদার্থ</button>
+        <button class="nav-tab" data-page="chemistry">🧪 রসায়ন</button>
+        <button class="nav-tab" data-page="math">📐 উচ্চ গণিত</button>
+        <button class="nav-tab" data-page="biology">🌿 জীববিজ্ঞান</button>
+        <button class="nav-tab" data-page="bangla">🖊️ বাংলা</button>
+        <button class="nav-tab" data-page="english">🌐 English</button>
+        <button class="nav-tab" data-page="ict">💻 ICT</button>
+        <button class="nav-tab" data-page="settings">⚙️</button>
     </nav>
 
-    <div class="container">
+    <main class="container">
         <div id="dashboard-page"  class="page active"></div>
         <div id="physics-page"    class="page"></div>
         <div id="chemistry-page"  class="page"></div>
@@ -38,7 +44,9 @@
         <div id="english-page"    class="page"></div>
         <div id="ict-page"        class="page"></div>
         <div id="settings-page"   class="page"></div>
-    </div>
+    </main>
+
+    <button id="scroll-top-btn" title="উপরে যান">↑</button>
 
     <script src="app.js"></script>
 </body>

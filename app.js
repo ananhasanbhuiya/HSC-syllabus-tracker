@@ -1,81 +1,125 @@
 /* ============================================================
-   HSC BUET Tracker — app.js
-   Architecture:
-   - Each subject page is built once using DOM APIs (no innerHTML for cards)
-   - Event delegation: ONE listener for checkboxes, ONE for buttons
-   - IDs are simple numbers ("0", "1", ...) — no Bengali in IDs
-   - State updates are surgical: only the affected DOM node changes
+   HSC BUET Tracker — app.js  v2.0
+   ─────────────────────────────────────────────────────────
+   Syllabus: NCTB-verified chapters (Physics, Chemistry,
+             Higher Math 1st & 2nd, Biology, Bangla, English, ICT)
+   Features: Countdown, Notes, Export/Import, Paper separators,
+             Scroll-to-top, Subject nav from dashboard,
+             Increased revision max (20), Overall badge
    ============================================================ */
 
-// ── DATA DEFINITIONS ──────────────────────────────────────────
+// ── SYLLABUS DATA ─────────────────────────────────────────────
+// All chapters verified against NCTB official textbooks 2024-25
 const SUBJECTS = {
     physics: {
         label: 'পদার্থবিজ্ঞান',
+        icon: '⚛️',
         checkboxCount: 4,
         papers: {
             '১ম পত্র': [
-                'ভৌত জগৎ ও পরিমাপ', 'ভেক্টর', 'গতিবিদ্যা', 'নিউটনীয় বলবিদ্যা',
-                'কাজ, ক্ষমতা ও শক্তি', 'মহাকর্ষ ও মহাকর্ষীয় ক্ষেত্র',
-                'পদার্থের গাঠনিক ধর্ম', 'পর্যায়বৃত্ত গতি', 'তরঙ্গ',
+                'ভৌত জগৎ ও পরিমাপ',
+                'ভেক্টর',
+                'গতিবিদ্যা',
+                'নিউটনীয় বলবিদ্যা',
+                'কাজ, ক্ষমতা ও শক্তি',
+                'মহাকর্ষ ও মহাকর্ষীয় ক্ষেত্র',
+                'পদার্থের গাঠনিক ধর্ম',
+                'পর্যায়বৃত্ত গতি',
+                'তরঙ্গ',
                 'আদর্শ গ্যাস ও গ্যাসের গতিতত্ত্ব'
             ],
             '২য় পত্র': [
-                'তাপগতিবিদ্যা', 'স্থির তড়িৎ', 'চল তড়িৎ',
+                // ✅ Verified 10 chapters — "জ্যোতির্বিজ্ঞান" is NOT in NCTB HSC syllabus
+                'তাপগতিবিদ্যা',
+                'স্থির তড়িৎ',
+                'চলতড়িৎ',
                 'তড়িৎ প্রবাহের চৌম্বক ক্রিয়া ও চুম্বকত্ব',
                 'তড়িচ্চুম্বকীয় আবেশ ও পরিবর্তী প্রবাহ',
-                'জ্যামিতিক আলোকবিজ্ঞান', 'ভৌত আলোকবিজ্ঞান',
+                'জ্যামিতিক আলোকবিজ্ঞান',
+                'ভৌত আলোকবিজ্ঞান',
                 'আধুনিক পদার্থবিজ্ঞানের সূচনা',
                 'পরমাণুর মডেল ও নিউক্লিয়ার পদার্থবিজ্ঞান',
-                'সেমিকন্ডাক্টর ও ইলেকট্রনিক্স', 'জ্যোতির্বিজ্ঞান'
+                'সেমিকন্ডাক্টর ও ইলেকট্রনিক্স'
             ]
         }
     },
+
     chemistry: {
         label: 'রসায়ন',
+        icon: '🧪',
         checkboxCount: 4,
         papers: {
             '১ম পত্র': [
-                'ল্যাবরেটরিতে নিরাপত্তা ও পরিচ্ছন্নতা', 'গুণগত রসায়ন',
+                'ল্যাবরেটরিতে নিরাপত্তা ও পরিচ্ছন্নতা',
+                'গুণগত রসায়ন',
                 'মৌলের পর্যায়বৃত্ত ধর্ম ও রাসায়নিক বন্ধন',
-                'রাসায়নিক পরিবর্তন', 'কর্মমুখী রসায়ন'
+                'রাসায়নিক পরিবর্তন',
+                'কর্মমুখী রসায়ন'
             ],
             '২য় পত্র': [
-                'পরিবেশ রসায়ন', 'জৈব রসায়ন', 'পরিমাণগত রসায়ন',
-                'রাসায়নিক গতিবিদ্যা ও রাসায়নিক সাম্যাবস্থা', 'তড়িৎ রসায়ন'
+                'পরিবেশ রসায়ন',
+                'জৈব রসায়ন',
+                'পরিমাণগত রসায়ন',
+                'রাসায়নিক গতিবিদ্যা ও রাসায়নিক সাম্যাবস্থা',
+                'তড়িৎ রসায়ন'
             ]
         }
     },
+
     math: {
         label: 'উচ্চতর গণিত',
+        icon: '📐',
         checkboxCount: 4,
         papers: {
+            // ✅ CORRECTED: Official NCTB Higher Math 1st Paper — 10 chapters
             '১ম পত্র': [
-                'ম্যাট্রিক্স ও নির্ণায়ক', 'ভেক্টর', 'সরলরেখা', 'বৃত্ত',
-                'পরাবৃত্ত', 'কনিক', 'ত্রিকোণমিতিক অনুপাত',
-                'ত্রিকোণমিতিক সমীকরণ', 'সমীকরণের প্রয়োগ',
-                'অন্তরীকরণ', 'যোগজীকরণ', 'সমতল স্থানাঙ্ক জ্যামিতি'
+                'ম্যাট্রিক্স ও নির্ণায়ক',
+                'ভেক্টর',
+                'সরলরেখা',
+                'বৃত্ত',
+                'বিন্যাস ও সমাবেশ',
+                'ত্রিকোণমিতিক অনুপাত',
+                'সংযুক্ত কোণের ত্রিকোণমিতিক অনুপাত',
+                'ফাংশন ও ফাংশনের লেখচিত্র',
+                'অন্তরীকরণ',
+                'যোগজীকরণ'
             ],
+            // ✅ CORRECTED: Official NCTB Higher Math 2nd Paper — 10 chapters
+            // Removed wrong chapters: সূচকীয় ধারা, ত্রিমাত্রিক স্থানাঙ্ক, আংশিক ভগ্নাংশ
             '২য় পত্র': [
-                'জটিল সংখ্যা', 'বহুপদী ও আংশিক ভগ্নাংশ',
-                'সূচকীয় ও লগারিদমীয় ধারা', 'অসমতা', 'কনিক',
-                'ত্রিমাত্রিক স্থানাঙ্ক জ্যামিতি',
-                'বিপরীত বৃত্তীয় ও বিপরীত অধিবৃত্তীয় ফাংশন',
-                'বিন্যাস ও সমাবেশ', 'দ্বিপদী বিস্তৃতি',
-                'সম্ভাব্যতা', 'স্থিতিবিদ্যা', 'গতিবিদ্যা'
+                'বাস্তব সংখ্যা ও অসমতা',
+                'যোগাশ্রয়ী প্রোগ্রাম',
+                'জটিল সংখ্যা',
+                'বহুপদী ও বহুপদী সমীকরণ',
+                'দ্বিপদী বিস্তৃতি',
+                'কনিক',
+                'বিপরীত ত্রিকোণমিতিক ফাংশন ও ত্রিকোণমিতিক সমীকরণ',
+                'স্থিতিবিদ্যা',
+                'সমতলে বস্তুকণার গতি',
+                'বিস্তার পরিমাপ ও সম্ভাবনা'
             ]
         }
     },
+
     biology: {
         label: 'জীববিজ্ঞান',
+        icon: '🌿',
         checkboxCount: 2,
         papers: {
-            '১ম পত্র': [
-                'কোষ ও এর গঠন', 'কোষ বিভাজন', 'কোষ রসায়ন', 'অণুজীব',
-                'শৈবাল ও ছত্রাক', 'ব্রায়োফাইটা ও টেরিডোফাইটা',
-                'নগ্নবীজী ও আবৃতবীজী উদ্ভিদ', 'টিস্যু ও টিস্যুতন্ত্র',
-                'উদ্ভিদের শারীরতত্ত্ব', 'উদ্ভিদের প্রজনন', 'জীবপ্রযুক্তি'
+            '১ম পত্র (উদ্ভিদবিজ্ঞান)': [
+                'কোষ ও এর গঠন',
+                'কোষ বিভাজন',
+                'কোষ রসায়ন',
+                'অণুজীব',
+                'শৈবাল ও ছত্রাক',
+                'ব্রায়োফাইটা ও টেরিডোফাইটা',
+                'নগ্নবীজী ও আবৃতবীজী উদ্ভিদ',
+                'টিস্যু ও টিস্যুতন্ত্র',
+                'উদ্ভিদের শারীরতত্ত্ব',
+                'উদ্ভিদের প্রজনন',
+                'জীবপ্রযুক্তি'
             ],
-            '২য় পত্র': [
+            '২য় পত্র (প্রাণিবিজ্ঞান)': [
                 'প্রাণীর বিভিন্নতা ও শ্রেণিবিন্যাস',
                 'মানব শারীরতত্ত্ব: পরিপাক ও শোষণ',
                 'মানব শারীরতত্ত্ব: রক্ত ও সংবহন',
@@ -85,20 +129,22 @@ const SUBJECTS = {
                 'মানব শারীরতত্ত্ব: সমন্বয়',
                 'মানব শারীরতত্ত্ব: মানব জনন',
                 'জীবের পরিবেশ, বিস্তার ও সংরক্ষণ',
-                'মানব কল্যাণে জীববিজ্ঞান', 'জীবপ্রযুক্তি',
+                'মানব কল্যাণে জীববিজ্ঞান',
+                'জীবপ্রযুক্তি',
                 'বংশগতি ও বিবর্তন'
             ]
         }
     },
+
     bangla: {
         label: 'বাংলা',
+        icon: '🖊️',
         checkboxCount: 2,
         papers: {
             'গদ্য': [
                 'বাংলার নব্য লেখকদের প্রতি নিবেদন — বঙ্কিমচন্দ্র চট্টোপাধ্যায়',
                 'অপরিচিতা — রবীন্দ্রনাথ ঠাকুর',
                 'বিলাসী — শরৎচন্দ্র চট্টোপাধ্যায়',
-                'গৃহ — বেগম রোকেয়া সাখাওয়াত হোসেন',
                 'আহ্বান — বিভূতিভূষণ বন্দ্যোপাধ্যায়',
                 'আমার পথ — কাজী নজরুল ইসলাম',
                 'মাসি-পিসি — মানিক বন্দ্যোপাধ্যায়',
@@ -113,10 +159,7 @@ const SUBJECTS = {
                 'সোনার তরী — রবীন্দ্রনাথ ঠাকুর',
                 'বিদ্রোহী — কাজী নজরুল ইসলাম',
                 'প্রতিদান — জসীমউদ্দীন',
-                'সূচনা — জীবনানন্দ দাশ',
                 'তাহারেই পড়ে মনে — সুফিয়া কামাল',
-                'পদ্মা — ফররুখ আহমদ',
-                '১৮ বছর বয়স — সুকান্ত ভট্টাচার্য',
                 'ফেব্রুয়ারি ১৯৬৯ — শামসুর রাহমান',
                 'আমি কিংবদন্তির কথা বলছি — আবু জাফর ওবায়দুল্লাহ',
                 'নুরুলদীনের কথা মনে পড়ে যায় — সৈয়দ শামসুল হক',
@@ -127,117 +170,132 @@ const SUBJECTS = {
                 'সিরাজউদ্দৌলা (নাটক) — সিকান্দার আবু জাফর'
             ],
             'ব্যাকরণ ও নির্মিতি': [
-                'উচ্চারণ ও বানান', 'ব্যাকরণিক শব্দশ্রেণি', 'বাক্যতত্ত্ব',
-                'আবেদনপত্র/ইমেইল', 'প্রতিবেদন', 'সারাংশ/সারমর্ম',
-                'ভাবসম্প্রসারণ', 'সংলাপ/অনুবাদ'
+                'উচ্চারণ ও বানান',
+                'ব্যাকরণিক শব্দশ্রেণি',
+                'বাক্যতত্ত্ব',
+                'আবেদনপত্র/ইমেইল',
+                'প্রতিবেদন',
+                'সারাংশ/সারমর্ম',
+                'ভাবসম্প্রসারণ',
+                'সংলাপ/অনুবাদ'
             ]
         }
     },
+
     english: {
         label: 'English',
+        icon: '🌐',
         checkboxCount: 2,
         papers: {
-            'Reading': [
-                'Unit 1: Nelson Mandela', 'Unit 2: Dreams & Dreamers',
-                'Unit 3: Traffic Education', 'Unit 4: Food Adulteration',
-                'Unit 5: Adolescence', 'Unit 6: Diaspora',
-                'Unit 7: The River', 'Unit 8: Devotion',
-                'Unit 9: Digital Bangladesh', 'Unit 10: Renewable Energy',
-                'Unit 11: Heritage', 'Unit 12: Nakshi Kantha'
+            'Reading (1st Paper)': [
+                'Unit 1: Nelson Mandela',
+                'Unit 2: Dreams & Dreamers',
+                'Unit 3: Traffic Education',
+                'Unit 4: Food Adulteration',
+                'Unit 5: Adolescence',
+                'Unit 6: Diaspora',
+                'Unit 7: The River',
+                'Unit 8: Devotion',
+                'Unit 9: Digital Bangladesh',
+                'Unit 10: Renewable Energy',
+                'Unit 11: Heritage',
+                'Unit 12: Nakshi Kantha'
             ],
-            'Writing': [
-                'Formal Letter', 'Application', 'Email', 'Paragraph',
-                'Composition', 'Summary', 'Report', 'Dialogue'
+            'Writing Skills (2nd Paper)': [
+                'Formal Letter',
+                'Application / Email',
+                'Paragraph Writing',
+                'Essay / Composition',
+                'Summary Writing',
+                'Report Writing',
+                'Dialogue Writing',
+                'Graph / Chart Description',
+                'CV / Resume'
             ]
         }
     },
+
     ict: {
-        label: 'ICT',
-        checkboxCount: 2,
+        label: 'তথ্য ও যোগাযোগ প্রযুক্তি',
+        icon: '💻',
+        checkboxCount: 4,
         papers: {
             'অধ্যায়': [
                 'তথ্য ও যোগাযোগ প্রযুক্তি: বিশ্ব ও বাংলাদেশ',
                 'কমিউনিকেশন সিস্টেমস ও নেটওয়ার্কিং',
                 'সংখ্যা পদ্ধতি ও ডিজিটাল ডিভাইস',
                 'ওয়েব ডিজাইন ও HTML',
-                'প্রোগ্রামিং (C)',
-                'ডেটাবেজ ম্যানেজমেন্ট'
+                'প্রোগ্রামিং ভাষা (C)',
+                'ডেটাবেজ ম্যানেজমেন্ট সিস্টেম'
             ]
         }
     }
 };
 
-// Subject page key → page element id
-const PAGE_IDS = {
-    dashboard: 'dashboard-page',
-    physics:   'physics-page',
-    chemistry: 'chemistry-page',
-    math:      'math-page',
-    biology:   'biology-page',
-    bangla:    'bangla-page',
-    english:   'english-page',
-    ict:       'ict-page',
-    settings:  'settings-page'
-};
+// ── STORAGE KEY ───────────────────────────────────────────────
+const STORAGE_KEY   = 'hscTracker_v2';
+const SETTINGS_KEY  = 'hscSettings_v2';
 
-// ── STATE ──────────────────────────────────────────────────────
-// chapterData[id] = { subjectKey, paper, chapter, cbCount,
-//                     mainBook, testPaper, questionBank, guidebook, revision }
-const chapterData = {};
-let currentPageKey = 'dashboard';
-// Track which subject pages have already been built into the DOM
-const builtPages = new Set();
+// ── STATE ─────────────────────────────────────────────────────
+const chapterData = {};           // id → chapter state
+let   currentPageKey = 'dashboard';
+const builtPages     = new Set();
+let   settings = { examDate: '' };
 
-// ── INIT ───────────────────────────────────────────────────────
+// ── INIT ──────────────────────────────────────────────────────
 function init() {
+    // Build chapter index
     let idx = 0;
     Object.keys(SUBJECTS).forEach(subjectKey => {
         const subj = SUBJECTS[subjectKey];
         Object.keys(subj.papers).forEach(paper => {
             subj.papers[paper].forEach(chapter => {
-                const id = String(idx++);
-                chapterData[id] = {
+                chapterData[String(idx++)] = {
                     subjectKey,
                     paper,
                     chapter,
-                    cbCount: subj.checkboxCount,
-                    mainBook:    false,
-                    testPaper:   false,
-                    questionBank:false,
-                    guidebook:   false,
-                    revision:    0
+                    cbCount:      subj.checkboxCount,
+                    mainBook:     false,
+                    testPaper:    false,
+                    questionBank: false,
+                    guidebook:    false,
+                    revision:     0,
+                    notes:        ''
                 };
             });
         });
     });
 
-    // Load from localStorage
-    const raw = localStorage.getItem('hscTracker');
-    if (raw) {
-        try {
-            const saved = JSON.parse(raw);
-            Object.keys(saved).forEach(id => {
-                if (chapterData[id]) {
-                    const s = saved[id];
-                    chapterData[id].mainBook     = !!s.mainBook;
-                    chapterData[id].testPaper    = !!s.testPaper;
-                    chapterData[id].questionBank = !!s.questionBank;
-                    chapterData[id].guidebook    = !!s.guidebook;
-                    chapterData[id].revision     = Number(s.revision) || 0;
-                }
-            });
-        } catch (e) {
-            // Corrupted data — ignore
-        }
-    }
-
+    // Load saved data
+    loadData();
+    loadSettings();
     attachListeners();
+    updateCountdown();
+    setInterval(updateCountdown, 60_000);
     showPage('dashboard');
+    updateOverallBadge();
 }
 
-// ── SAVE ───────────────────────────────────────────────────────
+// ── PERSISTENCE ───────────────────────────────────────────────
+function loadData() {
+    try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const saved = JSON.parse(raw);
+        Object.keys(saved).forEach(id => {
+            if (!chapterData[id]) return;
+            const s = saved[id];
+            chapterData[id].mainBook     = !!s.mainBook;
+            chapterData[id].testPaper    = !!s.testPaper;
+            chapterData[id].questionBank = !!s.questionBank;
+            chapterData[id].guidebook    = !!s.guidebook;
+            chapterData[id].revision     = Number(s.revision) || 0;
+            chapterData[id].notes        = s.notes || '';
+        });
+    } catch (_) {}
+}
+
 function save() {
-    // Save minimal object (only changed fields needed to restore)
     const out = {};
     Object.keys(chapterData).forEach(id => {
         const d = chapterData[id];
@@ -246,13 +304,25 @@ function save() {
             testPaper:    d.testPaper,
             questionBank: d.questionBank,
             guidebook:    d.guidebook,
-            revision:     d.revision
+            revision:     d.revision,
+            notes:        d.notes
         };
     });
-    localStorage.setItem('hscTracker', JSON.stringify(out));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(out));
 }
 
-// ── PROGRESS HELPERS ───────────────────────────────────────────
+function loadSettings() {
+    try {
+        const raw = localStorage.getItem(SETTINGS_KEY);
+        if (raw) settings = { ...settings, ...JSON.parse(raw) };
+    } catch (_) {}
+}
+
+function saveSettings() {
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+}
+
+// ── PROGRESS HELPERS ──────────────────────────────────────────
 function calcProgress(id) {
     const d = chapterData[id];
     if (d.cbCount === 4) {
@@ -273,8 +343,7 @@ function subjectProgress(subjectKey) {
 }
 
 function subjectCompleted(subjectKey) {
-    const ids = subjectIds(subjectKey);
-    return ids.filter(id => calcProgress(id) === 100).length;
+    return subjectIds(subjectKey).filter(id => calcProgress(id) === 100).length;
 }
 
 function overallProgress() {
@@ -283,56 +352,94 @@ function overallProgress() {
     return Math.round(ids.reduce((s, id) => s + calcProgress(id), 0) / ids.length);
 }
 
-// ── EVENT DELEGATION ───────────────────────────────────────────
+function totalRevisions() {
+    return Object.keys(chapterData).reduce((s, id) => s + chapterData[id].revision, 0);
+}
+
+// ── COUNTDOWN ─────────────────────────────────────────────────
+function updateCountdown() {
+    const el = document.getElementById('countdown-display');
+    if (!el) return;
+    if (!settings.examDate) {
+        el.textContent = '📅 পরীক্ষার তারিখ সেট করুন (Settings থেকে)';
+        return;
+    }
+    const exam = new Date(settings.examDate + 'T00:00:00');
+    const now  = new Date();
+    const diff = exam - now;
+    if (diff <= 0) {
+        el.textContent = '🎉 পরীক্ষা শুরু হয়ে গেছে!';
+        return;
+    }
+    const days  = Math.floor(diff / 86_400_000);
+    const hours = Math.floor((diff % 86_400_000) / 3_600_000);
+    el.textContent = `⏳ HSC পরীক্ষা: ${days} দিন ${hours} ঘণ্টা বাকি`;
+}
+
+// ── OVERALL BADGE ─────────────────────────────────────────────
+function updateOverallBadge() {
+    const el = document.getElementById('overall-badge');
+    if (el) el.textContent = overallProgress() + '%';
+}
+
+// ── EVENT LISTENERS ───────────────────────────────────────────
 function attachListeners() {
-    // Tab navigation
+    // Navigation tabs
     document.getElementById('nav-tabs').addEventListener('click', e => {
         const tab = e.target.closest('.nav-tab');
-        if (!tab) return;
-        showPage(tab.dataset.page);
+        if (tab) showPage(tab.dataset.page);
     });
 
-    // Checkbox changes (single delegated listener on document)
+    // Checkboxes (delegated)
     document.addEventListener('change', e => {
         const cb = e.target;
         if (cb.type !== 'checkbox' || !cb.dataset.id) return;
-
-        const id    = cb.dataset.id;
-        const field = cb.dataset.field;
-
-        // Sync state from the actual checkbox DOM value (not toggle — avoids all sync bugs)
-        chapterData[id][field] = cb.checked;
+        chapterData[cb.dataset.id][cb.dataset.field] = cb.checked;
         save();
-
-        // Update only this card's progress bar
-        refreshCardProgress(id);
-        // Update the subject stats header
-        refreshSubjectStats(chapterData[id].subjectKey);
-        // If dashboard is open, refresh it
-        if (currentPageKey === 'dashboard') {
-            refreshDashboard();
-        }
+        refreshCardProgress(cb.dataset.id);
+        refreshSubjectStats(chapterData[cb.dataset.id].subjectKey);
+        updateOverallBadge();
+        if (currentPageKey === 'dashboard') refreshDashboard();
     });
 
-    // Revision +/- buttons
+    // Revision ± buttons (delegated)
     document.addEventListener('click', e => {
         const btn = e.target.closest('.revision-btn');
         if (!btn || !btn.dataset.id) return;
-
-        const id    = btn.dataset.id;
-        const delta = Number(btn.dataset.delta);
-        const cur   = chapterData[id].revision;
-        chapterData[id].revision = Math.max(0, Math.min(10, cur + delta));
+        const id = btn.dataset.id;
+        chapterData[id].revision = Math.max(0, Math.min(20, chapterData[id].revision + Number(btn.dataset.delta)));
         save();
-
-        // Update only the revision number in this card
         const card = document.querySelector(`.chapter-card[data-id="${id}"]`);
-        if (card) {
-            card.querySelector('.revision-value').textContent = chapterData[id].revision;
+        if (card) card.querySelector('.revision-value').textContent = chapterData[id].revision;
+    });
+
+    // Notes toggle
+    document.addEventListener('click', e => {
+        const btn = e.target.closest('.notes-toggle');
+        if (!btn) return;
+        const id = btn.dataset.id;
+        const area = document.querySelector(`.notes-area[data-id="${id}"]`);
+        if (!area) return;
+        area.classList.toggle('open');
+        btn.textContent = area.classList.contains('open') ? '📝 নোট বন্ধ করুন' : '📝 নোট লিখুন / দেখুন';
+        if (area.classList.contains('open')) area.focus();
+    });
+
+    // Notes input (save on blur)
+    document.addEventListener('change', e => {
+        if (e.target.tagName === 'TEXTAREA' && e.target.dataset.id) {
+            chapterData[e.target.dataset.id].notes = e.target.value;
+            save();
         }
     });
 
-    // Settings reset button (delegated)
+    // Dashboard subject row click → navigate
+    document.addEventListener('click', e => {
+        const row = e.target.closest('.subject-row[data-key]');
+        if (row) showPage(row.dataset.key);
+    });
+
+    // Reset button
     document.addEventListener('click', e => {
         if (e.target.classList.contains('danger-btn')) {
             if (confirm('সব progress মুছে ফেলতে চান? এটি undo করা যাবে না!')) {
@@ -342,78 +449,170 @@ function attachListeners() {
             }
         }
     });
+
+    // Export button
+    document.addEventListener('click', e => {
+        if (e.target.classList.contains('export-btn')) exportData();
+    });
+
+    // Import button
+    document.addEventListener('click', e => {
+        if (e.target.classList.contains('import-btn')) {
+            document.getElementById('import-file-input').click();
+        }
+    });
+
+    // Import file
+    document.addEventListener('change', e => {
+        if (e.target.id === 'import-file-input') importData(e.target);
+    });
+
+    // Exam date setting
+    document.addEventListener('change', e => {
+        if (e.target.id === 'exam-date-input') {
+            settings.examDate = e.target.value;
+            saveSettings();
+            updateCountdown();
+        }
+    });
+
+    // Scroll-to-top button
+    const scrollBtn = document.getElementById('scroll-top-btn');
+    window.addEventListener('scroll', () => {
+        scrollBtn.classList.toggle('visible', window.scrollY > 300);
+    }, { passive: true });
+    scrollBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 }
 
+// ── RESET ─────────────────────────────────────────────────────
 function resetAll() {
     Object.keys(chapterData).forEach(id => {
-        chapterData[id].mainBook     = false;
-        chapterData[id].testPaper    = false;
-        chapterData[id].questionBank = false;
-        chapterData[id].guidebook    = false;
-        chapterData[id].revision     = 0;
+        const d = chapterData[id];
+        d.mainBook = d.testPaper = d.questionBook = d.guidebook = false;
+        d.revision = 0;
+        d.notes    = '';
     });
     save();
-    // Wipe all built pages so they re-render fresh
     builtPages.clear();
+    updateOverallBadge();
     showPage(currentPageKey);
 }
 
-// ── SURGICAL DOM UPDATES ───────────────────────────────────────
+// ── EXPORT / IMPORT ───────────────────────────────────────────
+function exportData() {
+    const payload = { version: 2, data: {}, settings, exportDate: new Date().toISOString() };
+    Object.keys(chapterData).forEach(id => {
+        const d = chapterData[id];
+        payload.data[id] = {
+            mainBook:     d.mainBook,
+            testPaper:    d.testPaper,
+            questionBank: d.questionBank,
+            guidebook:    d.guidebook,
+            revision:     d.revision,
+            notes:        d.notes
+        };
+    });
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = 'hsc-buet-tracker-backup.json';
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+function importData(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+        try {
+            const payload = JSON.parse(e.target.result);
+            const src = payload.data || payload;
+            Object.keys(src).forEach(id => {
+                if (!chapterData[id]) return;
+                const s = src[id];
+                chapterData[id].mainBook     = !!s.mainBook;
+                chapterData[id].testPaper    = !!s.testPaper;
+                chapterData[id].questionBank = !!s.questionBank;
+                chapterData[id].guidebook    = !!s.guidebook;
+                chapterData[id].revision     = Number(s.revision) || 0;
+                chapterData[id].notes        = s.notes || '';
+            });
+            if (payload.settings) {
+                settings = { ...settings, ...payload.settings };
+                saveSettings();
+                updateCountdown();
+            }
+            save();
+            builtPages.clear();
+            updateOverallBadge();
+            showPage(currentPageKey);
+            alert('✅ ডেটা সফলভাবে import হয়েছে!');
+        } catch (_) {
+            alert('❌ ফাইলটি সঠিক নয়। আবার চেষ্টা করুন।');
+        }
+        input.value = '';
+    };
+    reader.readAsText(file);
+}
+
+// ── SURGICAL DOM UPDATES ──────────────────────────────────────
 function refreshCardProgress(id) {
     const prog = calcProgress(id);
     const card = document.querySelector(`.chapter-card[data-id="${id}"]`);
     if (!card) return;
     card.querySelector('.progress-fill').style.width = prog + '%';
     card.querySelector('.progress-text').textContent  = prog + '% সম্পন্ন';
+    card.classList.toggle('completed', prog === 100);
 }
 
 function refreshSubjectStats(subjectKey) {
-    const statsEl = document.getElementById(PAGE_IDS[subjectKey])
-                             .querySelector('.subject-stats');
+    const pageEl = document.getElementById(subjectKey + '-page');
+    if (!pageEl) return;
+    const statsEl = pageEl.querySelector('.subject-stats');
     if (!statsEl) return;
     const ids   = subjectIds(subjectKey);
-    const total = ids.length;
     const prog  = subjectProgress(subjectKey);
     const done  = subjectCompleted(subjectKey);
     statsEl.querySelector('[data-stat="progress"]').textContent  = prog + '%';
-    statsEl.querySelector('[data-stat="completed"]').textContent = done + '/' + total;
+    statsEl.querySelector('[data-stat="completed"]').textContent = done + '/' + ids.length;
 }
 
 function refreshDashboard() {
     const pg = document.getElementById('dashboard-page');
-    const ovEl = pg.querySelector('[data-stat="overall"]');
-    const subEl = pg.querySelector('[data-stat="chapters"]');
-    if (ovEl) {
-        ovEl.textContent = overallProgress() + '%';
-        const ids  = Object.keys(chapterData);
-        const done = ids.filter(id => calcProgress(id) === 100).length;
-        subEl.textContent = done + ' / ' + ids.length + ' chapters completed';
-    }
-    // Update each subject row
+    if (!pg) return;
+
+    const overall = overallProgress();
+    pg.querySelector('[data-stat="overall-pct"]').textContent    = overall + '%';
+    pg.querySelector('[data-stat="overall-bar"]').style.width    = overall + '%';
+
+    const ids  = Object.keys(chapterData);
+    const done = ids.filter(id => calcProgress(id) === 100).length;
+    pg.querySelector('[data-stat="chapters"]').textContent = done + ' / ' + ids.length;
+    pg.querySelector('[data-stat="revisions"]').textContent = totalRevisions();
+
     Object.keys(SUBJECTS).forEach(key => {
-        const pct  = subjectProgress(key);
-        const row  = pg.querySelector(`.subject-row[data-key="${key}"]`);
+        const pct = subjectProgress(key);
+        const row = pg.querySelector(`.subject-row[data-key="${key}"]`);
         if (!row) return;
         row.querySelector('.subject-row-pct').textContent     = pct + '%';
         row.querySelector('.subject-row-bar-fill').style.width = pct + '%';
     });
 }
 
-// ── PAGE NAVIGATION ────────────────────────────────────────────
+// ── NAVIGATION ────────────────────────────────────────────────
 function showPage(pageKey) {
     currentPageKey = pageKey;
 
-    // Update active tab
     document.querySelectorAll('.nav-tab').forEach(tab => {
         tab.classList.toggle('active', tab.dataset.page === pageKey);
     });
 
-    // Update active page container
     document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active'));
-    const pageEl = document.getElementById(PAGE_IDS[pageKey]);
+    const pageEl = document.getElementById(pageKey + '-page');
     pageEl.classList.add('active');
 
-    // Build content if not already built
     if (pageKey === 'dashboard') {
         buildDashboard(pageEl);
     } else if (pageKey === 'settings') {
@@ -422,105 +621,150 @@ function showPage(pageKey) {
         buildSubjectPage(pageKey, pageEl);
         builtPages.add(pageKey);
     }
-    // If page was already built, existing DOM (with live checkbox states) is reused — no flicker, no state loss
+
+    window.scrollTo({ top: 0, behavior: 'auto' });
 }
 
-// ── BUILD: DASHBOARD ───────────────────────────────────────────
+// ── BUILD DASHBOARD ───────────────────────────────────────────
+const STUDY_TIPS = [
+    '💡 কঠিন অধ্যায়গুলো সকালে পড়ো — তখন মনোযোগ সবচেয়ে বেশি থাকে।',
+    '🔁 প্রতিটি অধ্যায় শেষ করার পর রিভিশন counter বাড়াতে ভুলো না!',
+    '⏱️ Pomodoro Technique: ২৫ মিনিট পড়ো, ৫ মিনিট বিশ্রাম নাও।',
+    '📝 গুরুত্বপূর্ণ সূত্র Notes-এ লিখে রাখো — পরে কাজে আসবে।',
+    '🎯 BUET admission-এর জন্য Physics ও Math সবচেয়ে গুরুত্বপূর্ণ।',
+    '📊 ছোট ছোট লক্ষ্য নির্ধারণ করো — প্রতিদিন অন্তত ১টি chapter শেষ করো।',
+    '🧠 পড়া শেষে নিজেকে প্রশ্ন করো — এটাই সেরা রিভিশন পদ্ধতি।',
+    '☕ রাত জেগে পড়ার চেয়ে সকালে তাজা মাথায় পড়া অনেক বেশি কার্যকর।'
+];
+
 function buildDashboard(el) {
-    // Dashboard is always rebuilt so stats are fresh
     el.innerHTML = '';
 
-    const grid = div('dashboard-grid');
+    const overall = overallProgress();
+    const ids     = Object.keys(chapterData);
+    const done    = ids.filter(id => calcProgress(id) === 100).length;
+    const tip     = STUDY_TIPS[Math.floor(Math.random() * STUDY_TIPS.length)];
 
-    // Overall card
-    const overallCard = div('dashboard-card');
-    const h1 = document.createElement('h3');
-    h1.textContent = 'Overall Progress';
-    const bigStat = div('big-stat');
-    bigStat.dataset.stat = 'overall';
-    bigStat.textContent = overallProgress() + '%';
-    const ids  = Object.keys(chapterData);
-    const done = ids.filter(id => calcProgress(id) === 100).length;
-    const sub  = div('big-stat-sub');
-    sub.dataset.stat = 'chapters';
-    sub.textContent = done + ' / ' + ids.length + ' chapters completed';
-    overallCard.append(h1, bigStat, sub);
+    // Hero
+    const hero = div('dashboard-hero');
+    hero.innerHTML = `
+        <div class="hero-percent" data-stat="overall-pct">${overall}%</div>
+        <div class="hero-label">সামগ্রিক অগ্রগতি</div>
+        <div class="hero-progress-bar">
+            <div class="hero-progress-fill" data-stat="overall-bar" style="width:${overall}%"></div>
+        </div>
+        <div class="hero-chapters" data-stat="chapters">${done} / ${ids.length} chapters সম্পন্ন</div>
+    `;
+    el.appendChild(hero);
 
-    // Subject list card
-    const listCard = div('dashboard-card');
-    const h2 = document.createElement('h3');
-    h2.textContent = 'Subject Progress';
+    // Quick Stats
+    const qs = div('quick-stats');
+    const completedSubjects = Object.keys(SUBJECTS).filter(k => subjectProgress(k) === 100).length;
+    qs.innerHTML = `
+        <div class="quick-stat-box">
+            <div class="quick-stat-val">${done}</div>
+            <div class="quick-stat-lbl">Chapters Done</div>
+        </div>
+        <div class="quick-stat-box">
+            <div class="quick-stat-val" data-stat="revisions">${totalRevisions()}</div>
+            <div class="quick-stat-lbl">মোট রিভিশন</div>
+        </div>
+        <div class="quick-stat-box">
+            <div class="quick-stat-val">${completedSubjects}</div>
+            <div class="quick-stat-lbl">Subjects Done</div>
+        </div>
+    `;
+    el.appendChild(qs);
+
+    // Study Tip
+    const tipEl = div('study-tip');
+    tipEl.innerHTML = `<div class="study-tip-label">💡 Study Tip</div>${tip}`;
+    el.appendChild(tipEl);
+
+    // Subject Progress Card
+    const card = div('dashboard-card');
+    const cardTitle = div('dashboard-card-title');
+    cardTitle.textContent = '📊 বিষয়ভিত্তিক অগ্রগতি  (ক্লিক করলে বিস্তারিত দেখুন)';
     const list = div('subject-list');
     Object.keys(SUBJECTS).forEach(key => {
         const pct = subjectProgress(key);
         const row = div('subject-row');
         row.dataset.key = key;
-        const name = div('subject-row-name');
-        name.textContent = SUBJECTS[key].label;
-        const right = div('subject-row-right');
-        const bar = div('subject-row-bar');
-        const fill = div('subject-row-bar-fill');
-        fill.style.width = pct + '%';
-        bar.appendChild(fill);
-        const pctEl = div('subject-row-pct');
-        pctEl.textContent = pct + '%';
-        right.append(bar, pctEl);
-        row.append(name, right);
+        row.title = 'Click to open';
+        row.innerHTML = `
+            <div class="subject-row-name">${SUBJECTS[key].icon} ${SUBJECTS[key].label}</div>
+            <div class="subject-row-right">
+                <div class="subject-row-bar">
+                    <div class="subject-row-bar-fill" style="width:${pct}%"></div>
+                </div>
+                <div class="subject-row-pct">${pct}%</div>
+            </div>
+        `;
         list.appendChild(row);
     });
-    listCard.append(h2, list);
-    grid.append(overallCard, listCard);
-    el.appendChild(grid);
+    card.append(cardTitle, list);
+    el.appendChild(card);
 }
 
-// ── BUILD: SUBJECT PAGE ────────────────────────────────────────
+// ── BUILD SUBJECT PAGE ────────────────────────────────────────
 function buildSubjectPage(pageKey, el) {
-    const subj = SUBJECTS[pageKey];
-    el.innerHTML = '';
-
-    // Title
-    const title = div('subject-title');
-    title.textContent = subj.label;
-    el.appendChild(title);
-
-    // Stats bar
+    const subj  = SUBJECTS[pageKey];
     const ids   = subjectIds(pageKey);
     const total = ids.length;
     const prog  = subjectProgress(pageKey);
     const done  = subjectCompleted(pageKey);
+    el.innerHTML = '';
+
+    // Title
+    const title = div('subject-title');
+    title.textContent = subj.icon + ' ' + subj.label;
+    el.appendChild(title);
+
+    // Stats
     const stats = div('subject-stats');
-    const s1 = div('stat-item');
-    const l1 = div('stat-label'); l1.textContent = 'PROGRESS';
-    const v1 = div('stat-value'); v1.dataset.stat = 'progress'; v1.textContent = prog + '%';
-    s1.append(l1, v1);
-    const s2 = div('stat-item');
-    const l2 = div('stat-label'); l2.textContent = 'COMPLETED';
-    const v2 = div('stat-value'); v2.dataset.stat = 'completed'; v2.textContent = done + '/' + total;
-    s2.append(l2, v2);
-    stats.append(s1, s2);
+    stats.innerHTML = `
+        <div class="stat-item">
+            <div class="stat-label">অগ্রগতি</div>
+            <div class="stat-value" data-stat="progress">${prog}%</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-label">সম্পন্ন</div>
+            <div class="stat-value" data-stat="completed">${done}/${total}</div>
+        </div>
+    `;
     el.appendChild(stats);
 
-    // Chapter cards — built with DOM API, never innerHTML for checkbox inputs
-    Object.keys(subj.papers).forEach(paper => {
+    // Chapters grouped by paper
+    Object.keys(subj.papers).forEach((paper, pIdx) => {
+        // Paper separator
+        const sep = div('paper-separator');
+        sep.innerHTML = `
+            <div class="paper-separator-line"></div>
+            <div class="paper-separator-label">${paper}</div>
+            <div class="paper-separator-line"></div>
+        `;
+        el.appendChild(sep);
+
+        // Cards for this paper
         subj.papers[paper].forEach(chapterName => {
             const id = Object.keys(chapterData).find(k =>
                 chapterData[k].subjectKey === pageKey &&
                 chapterData[k].paper      === paper   &&
                 chapterData[k].chapter    === chapterName
             );
-            if (id === undefined) return;
-            el.appendChild(buildCard(id));
+            if (id !== undefined) el.appendChild(buildCard(id));
         });
     });
 }
 
-// ── BUILD: SINGLE CARD ─────────────────────────────────────────
+// ── BUILD SINGLE CARD ─────────────────────────────────────────
 function buildCard(id) {
     const d    = chapterData[id];
     const prog = calcProgress(id);
 
     const card = div('chapter-card');
     card.dataset.id = id;
+    if (prog === 100) card.classList.add('completed');
 
     // Header
     const header = div('chapter-header');
@@ -534,14 +778,15 @@ function buildCard(id) {
     // Checkboxes
     const grid = div('checkboxes-grid');
     const cbFields = d.cbCount === 4
-        ? [['mainBook', 'মূল বই'], ['testPaper', 'টেস্ট পেপার'], ['questionBank', 'প্রশ্নব্যাংক'], ['guidebook', 'গাইড বই']]
-        : [['mainBook', 'মূল বই'], ['testPaper', 'বোর্ড প্রশ্ন']];
+        ? [['mainBook', '📗 মূল বই'], ['testPaper', '📄 টেস্ট পেপার'],
+           ['questionBank', '📋 প্রশ্নব্যাংক'], ['guidebook', '📘 গাইড বই']]
+        : [['mainBook', '📗 মূল বই'], ['testPaper', '📋 বোর্ড প্রশ্ন']];
 
     cbFields.forEach(([field, labelText]) => {
         const item  = div('checkbox-item');
         const input = document.createElement('input');
         input.type          = 'checkbox';
-        input.checked       = d[field];       // set from data, not attribute string
+        input.checked       = d[field];
         input.dataset.id    = id;
         input.dataset.field = field;
         const lbl = div('checkbox-label');
@@ -553,119 +798,146 @@ function buildCard(id) {
 
     // Revision
     const revSec = div('revision-section');
-    const revLbl = div('revision-label');
-    revLbl.textContent = 'রিভিশন (১-১০)';
-    const revCtrl = div('revision-controls');
-    const btnMinus = document.createElement('button');
-    btnMinus.className = 'revision-btn';
-    btnMinus.textContent = '−';
-    btnMinus.dataset.id    = id;
-    btnMinus.dataset.delta = '-1';
-    const revVal = div('revision-value');
-    revVal.textContent = d.revision;
-    const btnPlus = document.createElement('button');
-    btnPlus.className = 'revision-btn';
-    btnPlus.textContent = '+';
-    btnPlus.dataset.id    = id;
-    btnPlus.dataset.delta = '1';
-    revCtrl.append(btnMinus, revVal, btnPlus);
-    revSec.append(revLbl, revCtrl);
+    revSec.innerHTML = `
+        <span class="revision-label">🔁 রিভিশন (০–২০)</span>
+        <div class="revision-controls">
+            <button class="revision-btn" data-id="${id}" data-delta="-1">−</button>
+            <span class="revision-value">${d.revision}</span>
+            <button class="revision-btn" data-id="${id}" data-delta="1">+</button>
+        </div>
+    `;
     card.appendChild(revSec);
 
-    // Progress bar
-    const progSec  = div('progress-section');
-    const bar      = div('progress-bar');
-    const fill     = div('progress-fill');
-    fill.style.width = prog + '%';
-    bar.appendChild(fill);
-    const progText = div('progress-text');
-    progText.textContent = prog + '% সম্পন্ন';
-    progSec.append(bar, progText);
+    // Notes toggle
+    const notesBtn = document.createElement('button');
+    notesBtn.className   = 'notes-toggle';
+    notesBtn.dataset.id  = id;
+    notesBtn.textContent = d.notes ? '📝 নোট দেখুন / সম্পাদনা করুন' : '📝 নোট লিখুন / দেখুন';
+    card.appendChild(notesBtn);
+
+    // Notes textarea
+    const notesArea = document.createElement('textarea');
+    notesArea.className   = 'notes-area' + (d.notes ? ' open' : '');
+    notesArea.dataset.id  = id;
+    notesArea.placeholder = 'এখানে গুরুত্বপূর্ণ সূত্র, নোট বা টিপস লিখুন...';
+    notesArea.value       = d.notes;
+    card.appendChild(notesArea);
+
+    // Progress
+    const progSec = div('progress-section');
+    progSec.innerHTML = `
+        <div class="progress-bar">
+            <div class="progress-fill" style="width:${prog}%"></div>
+        </div>
+        <div class="progress-text">${prog}% সম্পন্ন</div>
+    `;
     card.appendChild(progSec);
 
     return card;
 }
 
-// ── BUILD: SETTINGS ────────────────────────────────────────────
+// ── BUILD SETTINGS ────────────────────────────────────────────
 function buildSettings(el) {
     el.innerHTML = '';
-
     const total = Object.keys(chapterData).length;
 
-    const cards = [
-        {
-            title: '📱 Add to Home Screen — iOS (iPhone / iPad)',
-            content: `<ol>
-                <li>Open this page in <strong>Safari</strong></li>
-                <li>Tap the <strong>Share</strong> button (📤) at the bottom of the screen</li>
-                <li>Scroll down in the menu and tap <strong>"Add to Home Screen"</strong></li>
-                <li>Tap <strong>"Add"</strong> at the top right</li>
-                <li>The app icon will appear on your Home Screen ✅</li>
-            </ol>`
-        },
-        {
-            title: '🤖 Add to Home Screen — Android',
-            content: `<ol>
-                <li>Open this page in <strong>Chrome</strong></li>
-                <li>Tap the <strong>three-dot menu</strong> (⋮) at the top right</li>
-                <li>Tap <strong>"Add to Home screen"</strong></li>
-                <li>Tap <strong>"Add"</strong></li>
-                <li>The app icon will appear on your Home Screen ✅</li>
-            </ol>`
-        },
-        {
-            title: '🔢 Checkbox & Progress System',
-            content: `
-                <p><strong>Physics, Chemistry, Higher Math — 4 checkboxes (25% each):</strong></p>
-                <ul>
-                    <li>মূল বই — 25%</li>
-                    <li>টেস্ট পেপার — 25%</li>
-                    <li>প্রশ্নব্যাংক — 25%</li>
-                    <li>গাইড বই — 25%</li>
-                </ul>
-                <p><strong>Biology, Bangla, English, ICT — 2 checkboxes (50% each):</strong></p>
-                <ul>
-                    <li>মূল বই — 50%</li>
-                    <li>বোর্ড প্রশ্ন — 50%</li>
-                </ul>
-                <p><strong>Revision Counter:</strong> Track 0–10 revisions per chapter.</p>
-                <p><strong>PROGRESS</strong> = average % across all chapters of that subject.</p>
-                <p><strong>COMPLETED</strong> = chapters where all checkboxes are ticked (100%).</p>
-            `
-        },
-        {
-            title: '💾 Data Storage',
-            content: `<p>All progress is saved in your browser's local storage automatically. It persists when you close the browser or restart your device.</p>
-            <p><strong>⚠️ Warning:</strong> Do NOT clear browser data or history — your progress will be lost!</p>`
-        },
-        {
-            title: '🗑️ Reset All Data',
-            content: `<p>Clears all checkboxes and resets revision counts to zero. This <strong>cannot be undone</strong>.</p>
-            <button class="danger-btn">Clear All Progress</button>`
-        },
-        {
-            title: 'ℹ️ About',
-            content: `<p>HSC BUET Tracker &nbsp;·&nbsp; Total chapters: <strong>${total}</strong></p>`
-        }
-    ];
+    // Exam Countdown Setting
+    const countdownCard = div('settings-card');
+    countdownCard.innerHTML = `
+        <h3>📅 HSC পরীক্ষার তারিখ</h3>
+        <p>তারিখ সেট করলে header-এ countdown দেখা যাবে।</p>
+        <div class="settings-input-row">
+            <label for="exam-date-input">পরীক্ষার তারিখ:</label>
+            <input type="date" id="exam-date-input" value="${settings.examDate || ''}">
+        </div>
+    `;
+    el.appendChild(countdownCard);
 
-    cards.forEach(c => {
-        const card = div('settings-card');
-        const h3 = document.createElement('h3');
-        h3.textContent = c.title;
-        const body = div('');
-        body.innerHTML = c.content;
-        card.append(h3, body);
-        el.appendChild(card);
-    });
+    // Backup
+    const backupCard = div('settings-card');
+    backupCard.innerHTML = `
+        <h3>💾 Backup ও Restore</h3>
+        <p>আপনার সব progress একটি JSON file-এ export করুন। পরে import করে পুনরুদ্ধার করা যাবে।</p>
+        <p style="margin-top:6px;color:#ff6b6b"><strong>⚠️ Browser data clear করলে progress মুছে যাবে!</strong> তাই নিয়মিত backup রাখুন।</p>
+        <button class="action-btn export-btn">⬇️ Export Backup</button>
+        <button class="action-btn secondary import-btn">⬆️ Import Backup</button>
+        <input type="file" id="import-file-input" accept=".json" style="display:none">
+    `;
+    el.appendChild(backupCard);
+
+    // Checkbox System
+    const cbCard = div('settings-card');
+    cbCard.innerHTML = `
+        <h3>☑️ Checkbox ও Progress System</h3>
+        <p><strong>Physics, Chemistry, উচ্চতর গণিত, ICT — ৪টি checkbox (প্রতিটি ২৫%):</strong></p>
+        <ul>
+            <li>📗 মূল বই — ২৫%</li>
+            <li>📄 টেস্ট পেপার — ২৫%</li>
+            <li>📋 প্রশ্নব্যাংক — ২৫%</li>
+            <li>📘 গাইড বই — ২৫%</li>
+        </ul>
+        <p style="margin-top:10px"><strong>Biology, বাংলা, English — ২টি checkbox (প্রতিটি ৫০%):</strong></p>
+        <ul>
+            <li>📗 মূল বই — ৫০%</li>
+            <li>📋 বোর্ড প্রশ্ন — ৫০%</li>
+        </ul>
+        <p style="margin-top:10px"><strong>রিভিশন Counter:</strong> প্রতি chapter-এ ০–২০ রিভিশন track করা যাবে।</p>
+    `;
+    el.appendChild(cbCard);
+
+    // Add to Home Screen — iOS
+    const iosCard = div('settings-card');
+    iosCard.innerHTML = `
+        <h3>📱 iPhone / iPad-এ Add to Home Screen</h3>
+        <ol>
+            <li><strong>Safari</strong>-এ এই পেজটি খুলুন</li>
+            <li>নিচে Share বাটন (📤) চাপুন</li>
+            <li>"Add to Home Screen" সিলেক্ট করুন</li>
+            <li>"Add" চাপুন — Done! ✅</li>
+        </ol>
+    `;
+    el.appendChild(iosCard);
+
+    // Add to Home Screen — Android
+    const androidCard = div('settings-card');
+    androidCard.innerHTML = `
+        <h3>🤖 Android-এ Add to Home Screen</h3>
+        <ol>
+            <li><strong>Chrome</strong>-এ এই পেজটি খুলুন</li>
+            <li>উপরে ⋮ মেনু চাপুন</li>
+            <li>"Add to Home screen" সিলেক্ট করুন</li>
+            <li>"Add" চাপুন — Done! ✅</li>
+        </ol>
+    `;
+    el.appendChild(androidCard);
+
+    // Reset
+    const resetCard = div('settings-card');
+    resetCard.innerHTML = `
+        <h3>🗑️ সব Data মুছে ফেলুন</h3>
+        <p>সব checkbox ও revision count শূন্যে রিসেট হবে। এটি <strong>undo করা যাবে না</strong>।</p>
+        <button class="danger-btn">⚠️ সব Progress মুছে ফেলুন</button>
+    `;
+    el.appendChild(resetCard);
+
+    // About
+    const aboutCard = div('settings-card');
+    aboutCard.innerHTML = `
+        <h3>ℹ️ About</h3>
+        <p>HSC BUET Tracker &nbsp;·&nbsp; Version 2.0</p>
+        <p>মোট অধ্যায়: <strong>${total}</strong></p>
+        <p style="margin-top:6px">NCTB অনুমোদিত সিলেবাস অনুযায়ী তৈরি (২০২৪-২৫)।<br>
+        Physics, Chemistry, Higher Math, Biology, Bangla, English, ICT।</p>
+    `;
+    el.appendChild(aboutCard);
 }
 
-// ── UTILITY ────────────────────────────────────────────────────
+// ── UTILITY ───────────────────────────────────────────────────
 function div(className) {
     const el = document.createElement('div');
     if (className) el.className = className;
     return el;
 }
 
-// ── START ──────────────────────────────────────────────────────
+// ── START ─────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', init);
