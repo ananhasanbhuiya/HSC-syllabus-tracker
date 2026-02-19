@@ -5,20 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#0f0f1a">
-    <meta name="description" content="HSC BUET Tracker — Chapter-wise study progress tracker for HSC science students in Bangladesh">
-    <title>📚 HSC BUET Tracker</title>
+    <meta name="theme-color" content="#0d0d18">
+    <meta name="description" content="HSC Syllabus Tracker (Engineering) — NCTB-verified chapter-wise study progress tracker for BUET aspirants in Bangladesh">
+    <title>🎓 HSC Syllabus Tracker</title>
+
+    <!-- Non-blocking font load: page renders instantly, font loads after -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap"></noscript>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap"
+          media="print"
+          onload="this.media='all'">
+    <noscript>
+        <link rel="stylesheet"
+              href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap">
+    </noscript>
+
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <header class="header">
         <div class="header-left">
-            <h1>📚 HSC BUET Tracker</h1>
+            <h1>🎓 HSC Syllabus Tracker</h1>
             <p id="countdown-display">লোড হচ্ছে...</p>
         </div>
         <div class="header-right" id="overall-badge">0%</div>
@@ -28,7 +37,7 @@
         <button class="nav-tab active" data-page="dashboard">📊 Dashboard</button>
         <button class="nav-tab" data-page="physics">⚛️ পদার্থ</button>
         <button class="nav-tab" data-page="chemistry">🧪 রসায়ন</button>
-        <button class="nav-tab" data-page="math">📐 উচ্চ গণিত</button>
+        <button class="nav-tab" data-page="math">📐 গণিত</button>
         <button class="nav-tab" data-page="biology">🌿 জীববিজ্ঞান</button>
         <button class="nav-tab" data-page="bangla">🖊️ বাংলা</button>
         <button class="nav-tab" data-page="english">🌐 English</button>
@@ -50,6 +59,7 @@
 
     <button id="scroll-top-btn" title="উপরে যান">↑</button>
 
+    <!-- defer: script runs after HTML is parsed, no blocking -->
     <script src="app.js" defer></script>
 </body>
 </html>
