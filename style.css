@@ -933,3 +933,243 @@ body {
 @media (min-width: 1280px) {
     .container { max-width: 1060px; }
 }
+
+/* ── STATUS SECTION ──────────────────────────
+   v5.0 additions
+   ─────────────────────────────────────────── */
+.status-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+
+.status-label {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.status-btn-group {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+.status-btn {
+    font-size: 12px;
+    font-family: inherit;
+    font-weight: 600;
+    padding: 5px 11px;
+    border-radius: 20px;
+    border: 1.5px solid var(--border);
+    background: var(--surface2);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: border-color 0.14s, background 0.14s, color 0.14s;
+    touch-action: manipulation;
+    min-height: 32px;
+    white-space: nowrap;
+}
+
+.status-btn:hover {
+    border-color: var(--accent);
+    color: var(--text);
+}
+
+.status-btn.status-not_started.active {
+    border-color: var(--text-muted);
+    background: rgba(128,128,170,0.15);
+    color: var(--text);
+}
+
+.status-btn.status-running.active {
+    border-color: var(--yellow);
+    background: rgba(255,209,102,0.14);
+    color: var(--yellow);
+}
+
+.status-btn.status-done.active {
+    border-color: var(--green);
+    background: rgba(67,217,162,0.14);
+    color: var(--green);
+}
+
+/* ── DEADLINE SECTION ────────────────────────*/
+.deadline-section {
+    background: var(--surface2);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    margin-bottom: 10px;
+}
+
+.deadline-header-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+
+.deadline-label {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.deadline-display {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text);
+    flex: 1;
+    min-width: 0;
+}
+
+.deadline-clear-btn {
+    width: 22px;
+    height: 22px;
+    border: none;
+    background: var(--border);
+    color: var(--text-muted);
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    touch-action: manipulation;
+    transition: background 0.14s;
+    font-family: inherit;
+    line-height: 1;
+}
+
+.deadline-clear-btn:hover {
+    background: var(--red);
+    color: #fff;
+}
+
+.deadline-quick-btns {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+.deadline-day-btn {
+    font-size: 11.5px;
+    font-family: inherit;
+    font-weight: 600;
+    padding: 4px 9px;
+    border-radius: 6px;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: border-color 0.14s, background 0.14s, color 0.14s;
+    touch-action: manipulation;
+    min-height: 28px;
+    white-space: nowrap;
+}
+
+.deadline-day-btn:hover {
+    border-color: var(--accent2);
+    color: var(--text);
+}
+
+.deadline-day-btn.active {
+    border-color: var(--accent2);
+    background: rgba(62,207,202,0.15);
+    color: var(--accent2);
+}
+
+/* ── TODAY'S CHECKLIST (Dashboard) ──────────*/
+.today-checklist-card {
+    border-color: rgba(62,207,202,0.35) !important;
+    background: rgba(62,207,202,0.04);
+}
+
+.today-badge {
+    display: inline-block;
+    background: var(--accent2);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 7px;
+    border-radius: 10px;
+    margin-left: 6px;
+    vertical-align: middle;
+}
+
+.today-chapter-list {
+    padding: 6px 8px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.today-chapter-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    background: var(--surface2);
+    border-radius: var(--radius-sm);
+    border: 1.5px solid transparent;
+    transition: border-color 0.14s;
+}
+
+.today-chapter-item.trunning {
+    border-color: rgba(255,209,102,0.3);
+    background: rgba(255,209,102,0.05);
+}
+
+.today-chapter-item.tdone {
+    border-color: rgba(67,217,162,0.3);
+    background: rgba(67,217,162,0.05);
+    opacity: 0.75;
+}
+
+.today-status-icon {
+    font-size: 16px;
+    flex-shrink: 0;
+    width: 22px;
+    text-align: center;
+}
+
+.today-chapter-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    flex: 1;
+}
+
+.today-subj-tag {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--accent2);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.today-chapter-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.4;
+    white-space: normal;
+    word-break: break-word;
+}
+
+.today-dl-hint {
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--text-muted);
+    display: block;
+}

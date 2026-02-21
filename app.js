@@ -1,7 +1,7 @@
 /* ============================================================
-   HSC Syllabus Tracker (Engineering) — app.js  v4.0
-   Final version: 3 themes, new completion formula,
-   nav touch fix, name update, all bugs resolved
+   HSC Syllabus Tracker (Engineering) — app.js  v5.0
+   New: Status (running/done), Deadline (next 10 days),
+   Today's Checklist on Dashboard, corrected chapter list
    ============================================================ */
 
 // ── SYLLABUS DATA ─────────────────────────────────────────────
@@ -10,16 +10,25 @@ const SUBJECTS = {
         label: 'পদার্থবিজ্ঞান', icon: '⚛️', checkboxCount: 4,
         papers: {
             '১ম পত্র': [
-                'ভৌত জগৎ ও পরিমাপ','ভেক্টর','গতিবিদ্যা','নিউটনীয় বলবিদ্যা',
-                'কাজ, ক্ষমতা ও শক্তি','মহাকর্ষ ও মহাকর্ষীয় ক্ষেত্র',
-                'পদার্থের গাঠনিক ধর্ম','পর্যায়বৃত্ত গতি','তরঙ্গ',
+                'ভৌত জগৎ ও পরিমাপ',
+                'ভেক্টর',
+                'গতিবিদ্যা',
+                'নিউটনীয় বলবিদ্যা',
+                'কাজ, শক্তি ও ক্ষমতা',
+                'মহাকর্ষ ও মহাকর্ষীয় ক্ষেত্র',
+                'পদার্থের গাঠনিক ধর্ম',
+                'পর্যাবৃত্ত গতি',
+                'তরঙ্গ',
                 'আদর্শ গ্যাস ও গ্যাসের গতিতত্ত্ব'
             ],
             '২য় পত্র': [
-                'তাপগতিবিদ্যা','স্থির তড়িৎ','চলতড়িৎ',
+                'তাপগতিবিদ্যা',
+                'স্থির তড়িৎ',
+                'চলতড়িৎ',
                 'তড়িৎ প্রবাহের চৌম্বক ক্রিয়া ও চুম্বকত্ব',
                 'তড়িচ্চুম্বকীয় আবেশ ও পরিবর্তী প্রবাহ',
-                'জ্যামিতিক আলোকবিজ্ঞান','ভৌত আলোকবিজ্ঞান',
+                'জ্যামিতিক আলোকবিজ্ঞান',
+                'ভৌত আলোকবিজ্ঞান',
                 'আধুনিক পদার্থবিজ্ঞানের সূচনা',
                 'পরমাণুর মডেল ও নিউক্লিয়ার পদার্থবিজ্ঞান',
                 'সেমিকন্ডাক্টর ও ইলেকট্রনিক্স'
@@ -30,13 +39,18 @@ const SUBJECTS = {
         label: 'রসায়ন', icon: '🧪', checkboxCount: 4,
         papers: {
             '১ম পত্র': [
-                'ল্যাবরেটরিতে নিরাপত্তা ও পরিচ্ছন্নতা','গুণগত রসায়ন',
+                'ল্যাবরেটরিতে নিরাপত্তা ও পরিচ্ছন্নতা',
+                'গুণগত রসায়ন',
                 'মৌলের পর্যায়বৃত্ত ধর্ম ও রাসায়নিক বন্ধন',
-                'রাসায়নিক পরিবর্তন','কর্মমুখী রসায়ন'
+                'রাসায়নিক পরিবর্তন',
+                'কর্মমুখী রসায়ন'
             ],
             '২য় পত্র': [
-                'পরিবেশ রসায়ন','জৈব রসায়ন','পরিমাণগত রসায়ন',
-                'রাসায়নিক গতিবিদ্যা ও রাসায়নিক সাম্যাবস্থা','তড়িৎ রসায়ন'
+                'পরিবেশ রসায়ন',
+                'জৈব রসায়ন',
+                'পরিমাণগত রসায়ন',
+                'রাসায়নিক গতিবিদ্যা ও রাসায়নিক সাম্যাবস্থা',
+                'তড়িৎ রসায়ন'
             ]
         }
     },
@@ -44,16 +58,28 @@ const SUBJECTS = {
         label: 'উচ্চতর গণিত', icon: '📐', checkboxCount: 4,
         papers: {
             '১ম পত্র': [
-                'ম্যাট্রিক্স ও নির্ণায়ক','ভেক্টর','সরলরেখা','বৃত্ত',
-                'বিন্যাস ও সমাবেশ','ত্রিকোণমিতিক অনুপাত',
+                'ম্যাট্রিক্স ও নির্ণায়ক',
+                'ভেক্টর',
+                'সরলরেখা',
+                'বৃত্ত',
+                'বিন্যাস ও সমাবেশ',
+                'ত্রিকোণমিতিক অনুপাত',
                 'সংযুক্ত কোণের ত্রিকোণমিতিক অনুপাত',
-                'ফাংশন ও ফাংশনের লেখচিত্র','অন্তরীকরণ','যোগজীকরণ'
+                'ফাংশন ও ফাংশনের লেখচিত্র',
+                'অন্তরীকরণ',
+                'যোগজীকরণ'
             ],
             '২য় পত্র': [
-                'বাস্তব সংখ্যা ও অসমতা','যোগাশ্রয়ী প্রোগ্রাম','জটিল সংখ্যা',
-                'বহুপদী ও বহুপদী সমীকরণ','দ্বিপদী বিস্তৃতি','কনিক',
+                'বাস্তব সংখ্যা ও অসমতা',
+                'যোগাশ্রয়ী প্রোগ্রামিং',
+                'জটিল সংখ্যা',
+                'বহুপদী ও বহুপদী সমীকরণ',
+                'দ্বিপদী বিস্তৃতি',
+                'কনিক',
                 'বিপরীত ত্রিকোণমিতিক ফাংশন ও ত্রিকোণমিতিক সমীকরণ',
-                'স্থিতিবিদ্যা','সমতলে বস্তুকণার গতি','বিস্তার পরিমাপ ও সম্ভাবনা'
+                'স্থিতিবিদ্যা',
+                'সমতলে বস্তুকণার গতি',
+                'বিস্তার পরিমাপ ও সম্ভাবনা'
             ]
         }
     },
@@ -61,10 +87,17 @@ const SUBJECTS = {
         label: 'জীববিজ্ঞান', icon: '🌿', checkboxCount: 2,
         papers: {
             '১ম পত্র (উদ্ভিদবিজ্ঞান)': [
-                'কোষ ও এর গঠন','কোষ বিভাজন','কোষ রসায়ন','অণুজীব',
-                'শৈবাল ও ছত্রাক','ব্রায়োফাইটা ও টেরিডোফাইটা',
-                'নগ্নবীজী ও আবৃতবীজী উদ্ভিদ','টিস্যু ও টিস্যুতন্ত্র',
-                'উদ্ভিদের শারীরতত্ত্ব','উদ্ভিদের প্রজনন','জীবপ্রযুক্তি'
+                'কোষ ও এর গঠন',
+                'কোষ বিভাজন',
+                'কোষ রসায়ন',
+                'অণুজীব',
+                'শৈবাল ও ছত্রাক',
+                'ব্রায়োফাইটা ও টেরিডোফাইটা',
+                'নগ্নবীজী ও আবৃতবীজী উদ্ভিদ',
+                'টিস্যু ও টিস্যুতন্ত্র',
+                'উদ্ভিদের শারীরতত্ত্ব',
+                'উদ্ভিদের প্রজনন',
+                'জীবপ্রযুক্তি'
             ],
             '২য় পত্র (প্রাণিবিজ্ঞান)': [
                 'প্রাণীর বিভিন্নতা ও শ্রেণিবিন্যাস',
@@ -73,9 +106,11 @@ const SUBJECTS = {
                 'মানব শারীরতত্ত্ব: শ্বসন ও শ্বাসক্রিয়া',
                 'মানব শারীরতত্ত্ব: রেচন প্রক্রিয়া',
                 'মানব শারীরতত্ত্ব: চলন ও অঙ্গসঞ্চালন',
-                'মানব শারীরতত্ত্ব: সমন্বয়','মানব শারীরতত্ত্ব: মানব জনন',
-                'জীবের পরিবেশ, বিস্তার ও সংরক্ষণ','মানব কল্যাণে জীববিজ্ঞান',
-                'জীবপ্রযুক্তি','বংশগতি ও বিবর্তন'
+                'মানব শারীরতত্ত্ব: স্নায়বিক সমন্বয় ও অন্তঃক্ষরা তন্ত্র',
+                'মানব শারীরতত্ত্ব: জনন ও পরিস্ফুটন',
+                'বংশগতি ও বিবর্তন',
+                'জীবের পরিবেশ, বিস্তার ও সংরক্ষণ',
+                'মানব কল্যাণে প্রাণিবিজ্ঞান'
             ]
         }
     },
@@ -102,7 +137,7 @@ const SUBJECTS = {
                 'প্রতিদান — জসীমউদ্দীন',
                 'তাহারেই পড়ে মনে — সুফিয়া কামাল',
                 'ফেব্রুয়ারি ১৯৬৯ — শামসুর রাহমান',
-                'আমি কিংবদন্তির কথা বলছি — আবু জাফর ওবায়দুল্লাহ',
+                'আমি কিংবদনন্তির কথা বলছি — আবু জাফর ওবায়দুল্লাহ',
                 'নুরুলদীনের কথা মনে পড়ে যায় — সৈয়দ শামসুল হক',
                 'রক্তে আমার অনাদি অস্থি — আবুল হাসান'
             ],
@@ -111,9 +146,14 @@ const SUBJECTS = {
                 'সিরাজউদ্দৌলা (নাটক) — সিকান্দার আবু জাফর'
             ],
             'ব্যাকরণ ও নির্মিতি': [
-                'উচ্চারণ ও বানান','ব্যাকরণিক শব্দশ্রেণি','বাক্যতত্ত্ব',
-                'আবেদনপত্র/ইমেইল','প্রতিবেদন','সারাংশ/সারমর্ম',
-                'ভাবসম্প্রসারণ','সংলাপ/অনুবাদ'
+                'উচ্চারণ ও বানান',
+                'ব্যাকরণিক শব্দশ্রেণি',
+                'বাক্যতত্ত্ব',
+                'আবেদনপত্র/ইমেইল',
+                'প্রতিবেদন',
+                'সারাংশ/সারমর্ম',
+                'ভাবসম্প্রসারণ',
+                'সংলাপ/অনুবাদ'
             ]
         }
     },
@@ -121,22 +161,35 @@ const SUBJECTS = {
         label: 'English', icon: '🌐', checkboxCount: 2,
         papers: {
             'Reading (1st Paper)': [
-                'Unit 1: Nelson Mandela','Unit 2: Dreams & Dreamers',
-                'Unit 3: Traffic Education','Unit 4: Food Adulteration',
-                'Unit 5: Adolescence','Unit 6: Diaspora','Unit 7: The River',
-                'Unit 8: Devotion','Unit 9: Digital Bangladesh',
-                'Unit 10: Renewable Energy','Unit 11: Heritage','Unit 12: Nakshi Kantha'
+                'Unit 1: Nelson Mandela',
+                'Unit 2: Dreams & Dreamers',
+                'Unit 3: Traffic Education',
+                'Unit 4: Food Adulteration',
+                'Unit 5: Adolescence',
+                'Unit 6: Diaspora',
+                'Unit 7: The River',
+                'Unit 8: Devotion',
+                'Unit 9: Digital Bangladesh',
+                'Unit 10: Renewable Energy',
+                'Unit 11: Heritage',
+                'Unit 12: Nakshi Kantha'
             ],
             'Writing Skills (2nd Paper)': [
-                'Formal Letter','Application / Email','Paragraph Writing',
-                'Essay / Composition','Summary Writing','Report Writing',
-                'Dialogue Writing','Graph / Chart Description','CV / Resume'
+                'Formal Letter',
+                'Application / Email',
+                'Paragraph Writing',
+                'Essay / Composition',
+                'Summary Writing',
+                'Report Writing',
+                'Dialogue Writing',
+                'Graph / Chart Description',
+                'CV / Resume'
             ]
         }
     },
     ict: {
         label: 'তথ্য ও যোগাযোগ প্রযুক্তি', icon: '💻',
-        checkboxCount: 2,   // ✅ 2 checkboxes — board subject
+        checkboxCount: 2,
         papers: {
             'অধ্যায়': [
                 'তথ্য ও যোগাযোগ প্রযুক্তি: বিশ্ব ও বাংলাদেশ',
@@ -190,7 +243,7 @@ function getTimeBasedQuote() {
     return pool[Math.floor(Math.random() * pool.length)];
 }
 
-// ── THEMES (3 only) ───────────────────────────────────────────
+// ── THEMES ────────────────────────────────────────────────────
 const THEMES = {
     dark: {
         label: '🌑 Dark (ডিফল্ট)',
@@ -243,7 +296,6 @@ const THEMES = {
 };
 
 function applyTheme(themeKey) {
-    // Fallback to 'dark' if stored key no longer exists (e.g., 'midnight', 'forest')
     const theme = THEMES[themeKey] || THEMES.dark;
     const root  = document.documentElement;
     Object.entries(theme.vars).forEach(([k, v]) => root.style.setProperty(k, v));
@@ -251,8 +303,8 @@ function applyTheme(themeKey) {
 }
 
 // ── STORAGE ───────────────────────────────────────────────────
-const STORAGE_KEY  = 'hscTracker_v2';    // keep same — preserves user data
-const SETTINGS_KEY = 'hscSettings_v4';   // bumped — clears stale theme prefs
+const STORAGE_KEY  = 'hscTracker_v2';
+const SETTINGS_KEY = 'hscSettings_v4';
 
 // ── STATE ─────────────────────────────────────────────────────
 const chapterData    = {};
@@ -262,7 +314,6 @@ let   settings       = { examDate: '', theme: 'dark' };
 
 // ── INIT ──────────────────────────────────────────────────────
 function init() {
-    // Build chapter index
     let idx = 0;
     Object.keys(SUBJECTS).forEach(subjectKey => {
         const subj = SUBJECTS[subjectKey];
@@ -270,13 +321,15 @@ function init() {
             subj.papers[paper].forEach(chapter => {
                 chapterData[String(idx++)] = {
                     subjectKey, paper, chapter,
-                    cbCount:     subj.checkboxCount,
-                    mainBook:    false,
-                    testPaper:   false,
-                    questionBank:false,
-                    guidebook:   false,
-                    revision:    0,
-                    notes:       ''
+                    cbCount:      subj.checkboxCount,
+                    mainBook:     false,
+                    testPaper:    false,
+                    questionBank: false,
+                    guidebook:    false,
+                    revision:     0,
+                    notes:        '',
+                    status:       'not_started',  // 'not_started' | 'running' | 'done'
+                    deadline:     ''              // 'YYYY-MM-DD' or ''
                 };
             });
         });
@@ -306,7 +359,9 @@ function loadData() {
             chapterData[id].questionBank = !!s.questionBank;
             chapterData[id].guidebook    = !!s.guidebook;
             chapterData[id].revision     = Number(s.revision) || 0;
-            chapterData[id].notes        = s.notes || '';
+            chapterData[id].notes        = s.notes    || '';
+            chapterData[id].status       = s.status   || 'not_started';
+            chapterData[id].deadline     = s.deadline || '';
         });
     } catch (_) {}
 }
@@ -321,7 +376,9 @@ function save() {
             questionBank: d.questionBank,
             guidebook:    d.guidebook,
             revision:     d.revision,
-            notes:        d.notes
+            notes:        d.notes,
+            status:       d.status,
+            deadline:     d.deadline
         };
     });
     localStorage.setItem(STORAGE_KEY, JSON.stringify(out));
@@ -339,11 +396,6 @@ function saveSettings() {
 }
 
 // ── PROGRESS & COMPLETION ─────────────────────────────────────
-/**
- * Returns actual progress percentage (used for progress bar display).
- * 4-box: each checkbox = 25%  →  0 / 25 / 50 / 75 / 100
- * 2-box: each checkbox = 50%  →  0 / 50 / 100
- */
 function calcProgress(id) {
     const d = chapterData[id];
     if (d.cbCount === 4) {
@@ -353,11 +405,6 @@ function calcProgress(id) {
     return (d.mainBook ? 50 : 0) + (d.testPaper ? 50 : 0);
 }
 
-/**
- * ✅ NEW COMPLETION FORMULA:
- * Engineering subjects (4-box): 3 out of 4 checked (≥75%) → COMPLETE
- * Board subjects (2-box): both checked (100%) → COMPLETE
- */
 function isChapterCompleted(id) {
     const prog = calcProgress(id);
     return chapterData[id].cbCount === 4 ? prog >= 75 : prog === 100;
@@ -373,12 +420,10 @@ function subjectProgress(sk) {
     return Math.round(ids.reduce((s, id) => s + calcProgress(id), 0) / ids.length);
 }
 
-// Counts chapters where isChapterCompleted() is true
 function subjectCompleted(sk) {
     return subjectIds(sk).filter(id => isChapterCompleted(id)).length;
 }
 
-// Overall % is still actual average (for the big progress bar)
 function overallProgress() {
     const ids = Object.keys(chapterData);
     if (!ids.length) return 0;
@@ -387,6 +432,28 @@ function overallProgress() {
 
 function totalRevisions() {
     return Object.keys(chapterData).reduce((s, id) => s + chapterData[id].revision, 0);
+}
+
+// ── DATE HELPERS ──────────────────────────────────────────────
+function getTodayStr() {
+    return new Date().toISOString().split('T')[0];
+}
+
+function dateFromToday(days) {
+    const d = new Date();
+    d.setDate(d.getDate() + days);
+    return d.toISOString().split('T')[0];
+}
+
+function formatDeadline(dateStr) {
+    if (!dateStr) return '';
+    const today  = new Date(); today.setHours(0,0,0,0);
+    const target = new Date(dateStr + 'T00:00:00');
+    const diff   = Math.round((target - today) / 86400000);
+    if (diff === 0) return '🔴 আজ শেষ করতে হবে';
+    if (diff === 1) return '🟡 আগামীকাল';
+    if (diff < 0)   return `⚫ ${Math.abs(diff)} দিন আগে (মিস)`;
+    return `🟢 ${diff} দিন বাকি`;
 }
 
 // ── COUNTDOWN ─────────────────────────────────────────────────
@@ -411,43 +478,38 @@ function updateOverallBadge() {
 
 // ── EVENT LISTENERS ───────────────────────────────────────────
 function attachListeners() {
-    // ── Navigation
+    // Navigation
     document.getElementById('nav-tabs').addEventListener('click', e => {
         const tab = e.target.closest('.nav-tab');
         if (tab) showPage(tab.dataset.page);
     });
 
-    // ── All <change> events (consolidated)
+    // All change events
     document.addEventListener('change', e => {
         const t = e.target;
 
-        // Checkbox toggle
         if (t.type === 'checkbox' && t.dataset.id) {
             chapterData[t.dataset.id][t.dataset.field] = t.checked;
             save();
             refreshCardProgress(t.dataset.id);
             refreshSubjectStats(chapterData[t.dataset.id].subjectKey);
             updateOverallBadge();
-            if (currentPageKey === 'dashboard') refreshDashboard();
+            if (currentPageKey === 'dashboard') buildDashboard(document.getElementById('dashboard-page'));
         }
 
-        // Notes textarea (save on change/blur)
         if (t.tagName === 'TEXTAREA' && t.dataset.id) {
             chapterData[t.dataset.id].notes = t.value;
             save();
         }
 
-        // Import file
         if (t.id === 'import-file-input') importData(t);
 
-        // Exam date
         if (t.id === 'exam-date-input') {
             settings.examDate = t.value;
             saveSettings();
             updateCountdown();
         }
 
-        // Theme selector
         if (t.id === 'theme-select') {
             settings.theme = t.value;
             saveSettings();
@@ -455,9 +517,9 @@ function attachListeners() {
         }
     });
 
-    // ── All <click> events (consolidated)
+    // All click events
     document.addEventListener('click', e => {
-        // Revision +/- buttons
+        // Revision +/-
         const revBtn = e.target.closest('.revision-btn');
         if (revBtn && revBtn.dataset.id) {
             const id = revBtn.dataset.id;
@@ -470,7 +532,46 @@ function attachListeners() {
             return;
         }
 
-        // Notes toggle button
+        // Status buttons
+        const statusBtn = e.target.closest('.status-btn');
+        if (statusBtn && statusBtn.dataset.id) {
+            const id = statusBtn.dataset.id;
+            chapterData[id].status = statusBtn.dataset.status;
+            save();
+            const card = document.querySelector(`.chapter-card[data-id="${id}"]`);
+            if (card) {
+                card.querySelectorAll('.status-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.status === chapterData[id].status);
+                });
+            }
+            if (currentPageKey === 'dashboard') buildDashboard(document.getElementById('dashboard-page'));
+            return;
+        }
+
+        // Deadline quick-day buttons
+        const dlBtn = e.target.closest('.deadline-day-btn');
+        if (dlBtn && dlBtn.dataset.id) {
+            const id   = dlBtn.dataset.id;
+            const days = parseInt(dlBtn.dataset.days, 10);
+            chapterData[id].deadline = dateFromToday(days);
+            save();
+            refreshCardDeadline(id);
+            if (currentPageKey === 'dashboard') buildDashboard(document.getElementById('dashboard-page'));
+            return;
+        }
+
+        // Deadline clear
+        const dlClear = e.target.closest('.deadline-clear-btn');
+        if (dlClear && dlClear.dataset.id) {
+            const id = dlClear.dataset.id;
+            chapterData[id].deadline = '';
+            save();
+            refreshCardDeadline(id);
+            if (currentPageKey === 'dashboard') buildDashboard(document.getElementById('dashboard-page'));
+            return;
+        }
+
+        // Notes toggle
         const notesBtn = e.target.closest('.notes-toggle');
         if (notesBtn) {
             const id   = notesBtn.dataset.id;
@@ -488,7 +589,7 @@ function attachListeners() {
         const row = e.target.closest('.subject-row[data-key]');
         if (row) { showPage(row.dataset.key); return; }
 
-        // Reset / danger button
+        // Danger / reset
         if (e.target.classList.contains('danger-btn')) {
             if (confirm('সব progress মুছে ফেলতে চান? এটি undo করা যাবে না!')) {
                 if (confirm('শেষবার নিশ্চিত করুন — সব data মুছে যাবে!')) resetAll();
@@ -496,7 +597,7 @@ function attachListeners() {
             return;
         }
 
-        // Export / Import buttons
+        // Export / Import
         if (e.target.classList.contains('export-btn')) { exportData(); return; }
         if (e.target.classList.contains('import-btn')) {
             document.getElementById('import-file-input').click();
@@ -504,7 +605,7 @@ function attachListeners() {
         }
     });
 
-    // Scroll-to-top button
+    // Scroll-to-top
     const scrollBtn = document.getElementById('scroll-top-btn');
     window.addEventListener('scroll', () => {
         scrollBtn.classList.toggle('visible', window.scrollY > 300);
@@ -512,15 +613,17 @@ function attachListeners() {
     scrollBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 }
 
-// ── RESET (clears both in-memory state AND localStorage) ──────
+// ── RESET ─────────────────────────────────────────────────────
 function resetAll() {
     Object.keys(chapterData).forEach(id => {
         const d = chapterData[id];
         d.mainBook = d.testPaper = d.questionBank = d.guidebook = false;
-        d.revision = 0;
-        d.notes    = '';
+        d.revision  = 0;
+        d.notes     = '';
+        d.status    = 'not_started';
+        d.deadline  = '';
     });
-    localStorage.removeItem(STORAGE_KEY);   // ✅ Actually wipes storage
+    localStorage.removeItem(STORAGE_KEY);
     builtPages.clear();
     updateOverallBadge();
     showPage(currentPageKey);
@@ -530,7 +633,7 @@ function resetAll() {
 // ── EXPORT / IMPORT ───────────────────────────────────────────
 function exportData() {
     const payload = {
-        version: 4,
+        version: 5,
         appName: 'HSC Syllabus Tracker (Engineering)',
         exportDate: new Date().toISOString(),
         settings,
@@ -544,7 +647,9 @@ function exportData() {
             questionBank: d.questionBank,
             guidebook:    d.guidebook,
             revision:     d.revision,
-            notes:        d.notes
+            notes:        d.notes,
+            status:       d.status,
+            deadline:     d.deadline
         };
     });
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
@@ -573,11 +678,12 @@ function importData(input) {
                 chapterData[id].questionBank = !!s.questionBank;
                 chapterData[id].guidebook    = !!s.guidebook;
                 chapterData[id].revision     = Number(s.revision) || 0;
-                chapterData[id].notes        = s.notes || '';
+                chapterData[id].notes        = s.notes    || '';
+                chapterData[id].status       = s.status   || 'not_started';
+                chapterData[id].deadline     = s.deadline || '';
             });
             if (payload.settings) {
                 settings = { ...settings, ...payload.settings };
-                // Ensure imported theme is valid
                 if (!(settings.theme in THEMES)) settings.theme = 'dark';
                 saveSettings();
                 updateCountdown();
@@ -603,8 +709,21 @@ function refreshCardProgress(id) {
     if (!card) return;
     card.querySelector('.progress-fill').style.width = prog + '%';
     card.querySelector('.progress-text').textContent = prog + '% সম্পন্ন';
-    // ✅ Fixed: uses isChapterCompleted() not prog===100
     card.classList.toggle('completed', isChapterCompleted(id));
+}
+
+function refreshCardDeadline(id) {
+    const card = document.querySelector(`.chapter-card[data-id="${id}"]`);
+    if (!card) return;
+    const dl       = chapterData[id].deadline;
+    const dispEl   = card.querySelector('.deadline-display');
+    const clearBtn = card.querySelector('.deadline-clear-btn');
+    if (dispEl)   dispEl.textContent = dl ? formatDeadline(dl) : 'তারিখ সেট করা হয়নি';
+    if (clearBtn) clearBtn.style.display = dl ? 'inline-flex' : 'none';
+    card.querySelectorAll('.deadline-day-btn').forEach(btn => {
+        const btnDate = dateFromToday(parseInt(btn.dataset.days, 10));
+        btn.classList.toggle('active', dl === btnDate);
+    });
 }
 
 function refreshSubjectStats(sk) {
@@ -613,28 +732,8 @@ function refreshSubjectStats(sk) {
     const statsEl = pageEl.querySelector('.subject-stats');
     if (!statsEl) return;
     const ids = subjectIds(sk);
-    statsEl.querySelector('[data-stat="progress"]').textContent   = subjectProgress(sk) + '%';
-    statsEl.querySelector('[data-stat="completed"]').textContent  = subjectCompleted(sk) + '/' + ids.length;
-}
-
-function refreshDashboard() {
-    const pg = document.getElementById('dashboard-page');
-    if (!pg) return;
-    const overall = overallProgress();
-    pg.querySelector('[data-stat="overall-pct"]').textContent  = overall + '%';
-    pg.querySelector('[data-stat="overall-bar"]').style.width  = overall + '%';
-    const ids  = Object.keys(chapterData);
-    // ✅ Fixed: uses isChapterCompleted() not calcProgress===100
-    const done = ids.filter(id => isChapterCompleted(id)).length;
-    pg.querySelector('[data-stat="chapters"]').textContent  = done + ' / ' + ids.length;
-    pg.querySelector('[data-stat="revisions"]').textContent = totalRevisions();
-    Object.keys(SUBJECTS).forEach(key => {
-        const pct = subjectProgress(key);
-        const row = pg.querySelector(`.subject-row[data-key="${key}"]`);
-        if (!row) return;
-        row.querySelector('.subject-row-pct').textContent      = pct + '%';
-        row.querySelector('.subject-row-bar-fill').style.width = pct + '%';
-    });
+    statsEl.querySelector('[data-stat="progress"]').textContent  = subjectProgress(sk) + '%';
+    statsEl.querySelector('[data-stat="completed"]').textContent = subjectCompleted(sk) + '/' + ids.length;
 }
 
 // ── NAVIGATION ────────────────────────────────────────────────
@@ -661,7 +760,6 @@ function buildDashboard(el) {
     const frag    = document.createDocumentFragment();
     const overall = overallProgress();
     const ids     = Object.keys(chapterData);
-    // ✅ Fixed: isChapterCompleted() for both done count and completedSubjects
     const done    = ids.filter(id => isChapterCompleted(id)).length;
     const quote   = getTimeBasedQuote();
 
@@ -676,6 +774,63 @@ function buildDashboard(el) {
         <div class="hero-chapters" data-stat="chapters">${done} / ${ids.length} chapters সম্পন্ন</div>
     `;
     frag.appendChild(hero);
+
+    // ── TODAY'S CHECKLIST ─────────────────────────────────────
+    const todayStr   = getTodayStr();
+    const todayIds   = ids.filter(id => chapterData[id].deadline === todayStr);
+    const runningIds = ids.filter(id => chapterData[id].status === 'running' && chapterData[id].deadline !== todayStr);
+
+    if (todayIds.length > 0 || runningIds.length > 0) {
+        const todayCard = div('dashboard-card today-checklist-card');
+
+        if (todayIds.length > 0) {
+            const todayTitle = div('dashboard-card-title');
+            todayTitle.innerHTML = `📋 আজকের পড়ার তালিকা <span class="today-badge">${todayIds.length}টি</span>`;
+            todayCard.appendChild(todayTitle);
+
+            const list = div('today-chapter-list');
+            todayIds.forEach(id => {
+                const d    = chapterData[id];
+                const item = div('today-chapter-item');
+                if (d.status === 'done')    item.classList.add('tdone');
+                if (d.status === 'running') item.classList.add('trunning');
+                item.innerHTML = `
+                    <span class="today-status-icon">${d.status === 'done' ? '✅' : d.status === 'running' ? '🟡' : '⬜'}</span>
+                    <div class="today-chapter-info">
+                        <span class="today-subj-tag">${SUBJECTS[d.subjectKey].icon} ${SUBJECTS[d.subjectKey].label}</span>
+                        <span class="today-chapter-name">${d.chapter}</span>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+            todayCard.appendChild(list);
+        }
+
+        if (runningIds.length > 0) {
+            const runTitle = div('dashboard-card-title');
+            if (todayIds.length > 0) runTitle.style.borderTop = '1px solid var(--border)';
+            runTitle.innerHTML = `🟡 চলমান অধ্যায় <span class="today-badge">${runningIds.length}টি</span>`;
+            todayCard.appendChild(runTitle);
+
+            const rlist = div('today-chapter-list');
+            runningIds.forEach(id => {
+                const d    = chapterData[id];
+                const item = div('today-chapter-item trunning');
+                const dlTxt = d.deadline ? ' · ' + formatDeadline(d.deadline) : '';
+                item.innerHTML = `
+                    <span class="today-status-icon">🟡</span>
+                    <div class="today-chapter-info">
+                        <span class="today-subj-tag">${SUBJECTS[d.subjectKey].icon} ${SUBJECTS[d.subjectKey].label}</span>
+                        <span class="today-chapter-name">${d.chapter}<small class="today-dl-hint">${dlTxt}</small></span>
+                    </div>
+                `;
+                rlist.appendChild(item);
+            });
+            todayCard.appendChild(rlist);
+        }
+
+        frag.appendChild(todayCard);
+    }
 
     // Quick Stats
     const completedSubjects = Object.keys(SUBJECTS).filter(k => {
@@ -784,9 +939,8 @@ function buildCard(id) {
     const prog = calcProgress(id);
 
     const card = div('chapter-card');
-    card.dataset.id     = id;
-    card.dataset.cbcount = d.cbCount;  // ✅ Fixed: now set so CSS can target it
-    // ✅ Fixed: uses isChapterCompleted() for .completed class
+    card.dataset.id      = id;
+    card.dataset.cbcount = d.cbCount;
     if (isChapterCompleted(id)) card.classList.add('completed');
 
     // Header
@@ -797,7 +951,7 @@ function buildCard(id) {
     `;
     card.appendChild(header);
 
-    // Completion badge for engineering subjects
+    // Completion badge
     if (d.cbCount === 4) {
         const badge = div('completion-rule');
         badge.textContent = '✅ ৩টি tick = সম্পন্ন';
@@ -825,6 +979,67 @@ function buildCard(id) {
     });
     card.appendChild(grid);
 
+    // ── STATUS SECTION ────────────────────────────────────────
+    const statusSec = div('status-section');
+    const statusLabel = document.createElement('span');
+    statusLabel.className   = 'status-label';
+    statusLabel.textContent = '📌 অবস্থা:';
+    statusSec.appendChild(statusLabel);
+
+    const statusGroup = div('status-btn-group');
+    [
+        ['not_started', '⚪ শুরু করিনি'],
+        ['running',     '🟡 পড়ছি'],
+        ['done',        '✅ শেষ']
+    ].forEach(([val, label]) => {
+        const btn = document.createElement('button');
+        btn.className      = 'status-btn status-' + val;
+        btn.dataset.id     = id;
+        btn.dataset.status = val;
+        btn.textContent    = label;
+        if (d.status === val) btn.classList.add('active');
+        statusGroup.appendChild(btn);
+    });
+    statusSec.appendChild(statusGroup);
+    card.appendChild(statusSec);
+
+    // ── DEADLINE SECTION ──────────────────────────────────────
+    const dlSec = div('deadline-section');
+
+    const dlRow = div('deadline-header-row');
+
+    const dlLabel = document.createElement('span');
+    dlLabel.className   = 'deadline-label';
+    dlLabel.textContent = '📅 টার্গেট:';
+    dlRow.appendChild(dlLabel);
+
+    const dlDisplay = div('deadline-display');
+    dlDisplay.textContent = d.deadline ? formatDeadline(d.deadline) : 'সেট করা হয়নি';
+    dlRow.appendChild(dlDisplay);
+
+    const dlClearBtn = document.createElement('button');
+    dlClearBtn.className     = 'deadline-clear-btn';
+    dlClearBtn.dataset.id    = id;
+    dlClearBtn.textContent   = '✕';
+    dlClearBtn.title         = 'তারিখ মুছুন';
+    dlClearBtn.style.display = d.deadline ? 'inline-flex' : 'none';
+    dlRow.appendChild(dlClearBtn);
+
+    dlSec.appendChild(dlRow);
+
+    const dlBtns = div('deadline-quick-btns');
+    [[0,'আজ'],[1,'+১'],[2,'+২'],[3,'+৩'],[5,'+৫'],[7,'+৭'],[10,'+১০']].forEach(([days, label]) => {
+        const btn = document.createElement('button');
+        btn.className    = 'deadline-day-btn';
+        btn.dataset.id   = id;
+        btn.dataset.days = days;
+        btn.textContent  = label;
+        if (d.deadline && d.deadline === dateFromToday(days)) btn.classList.add('active');
+        dlBtns.appendChild(btn);
+    });
+    dlSec.appendChild(dlBtns);
+    card.appendChild(dlSec);
+
     // Revision counter
     const revSec = div('revision-section');
     revSec.innerHTML = `
@@ -847,7 +1062,6 @@ function buildCard(id) {
     const notesArea = document.createElement('textarea');
     notesArea.className   = 'notes-area' + (d.notes ? ' open' : '');
     notesArea.dataset.id  = id;
-    // ✅ Correct placeholder text
     notesArea.placeholder = 'এই অধ্যায় সম্পর্কে এমন কিছু যা তোমার মাথায় থাকা জরুরি...';
     notesArea.value       = d.notes;
     card.appendChild(notesArea);
@@ -871,7 +1085,6 @@ function buildSettings(el) {
     const frag  = document.createDocumentFragment();
     const total = Object.keys(chapterData).length;
 
-    // Theme
     const themeCard = div('settings-card');
     const themeOptions = Object.entries(THEMES)
         .map(([k, v]) => `<option value="${k}"${k === (settings.theme || 'dark') ? ' selected' : ''}>${v.label}</option>`)
@@ -886,7 +1099,6 @@ function buildSettings(el) {
     `;
     frag.appendChild(themeCard);
 
-    // Exam Date
     const countdownCard = div('settings-card');
     countdownCard.innerHTML = `
         <h3>📅 HSC পরীক্ষার তারিখ</h3>
@@ -898,7 +1110,6 @@ function buildSettings(el) {
     `;
     frag.appendChild(countdownCard);
 
-    // Backup
     const backupCard = div('settings-card');
     backupCard.innerHTML = `
         <h3>💾 Backup ও Restore</h3>
@@ -910,7 +1121,6 @@ function buildSettings(el) {
     `;
     frag.appendChild(backupCard);
 
-    // Completion system explanation
     const cbCard = div('settings-card');
     cbCard.innerHTML = `
         <h3>☑️ Completion System</h3>
@@ -922,11 +1132,13 @@ function buildSettings(el) {
         <p style="margin-top:4px">📗 মূল বই &nbsp;·&nbsp; 📋 বোর্ড প্রশ্ন</p>
         <p style="margin-top:6px;color:var(--accent)"><strong>✅ নিয়ম: দুটোই tick = chapter সম্পন্ন (১০০%)</strong></p>
         <hr style="border-color:var(--border);margin:12px 0">
+        <p><strong>📌 Status:</strong> প্রতিটি chapter "⚪ শুরু করিনি", "🟡 পড়ছি" বা "✅ শেষ" করে mark করুন।</p>
+        <p style="margin-top:4px"><strong>📅 Deadline:</strong> পরের ১০ দিনের মধ্যে target date দিন। Dashboard-এ আজকের তালিকা দেখুন।</p>
+        <hr style="border-color:var(--border);margin:12px 0">
         <p><strong>🔁 রিভিশন Counter:</strong> প্রতি chapter-এ ০–২০ রিভিশন track করা যাবে।</p>
     `;
     frag.appendChild(cbCard);
 
-    // Add to Home Screen
     const iosCard = div('settings-card');
     iosCard.innerHTML = `
         <h3>📱 Home Screen-এ Add করুন</h3>
@@ -935,20 +1147,18 @@ function buildSettings(el) {
     `;
     frag.appendChild(iosCard);
 
-    // Reset
     const resetCard = div('settings-card');
     resetCard.innerHTML = `
         <h3>🗑️ সব Data মুছে ফেলুন</h3>
-        <p>সব checkbox ও revision count শূন্যে রিসেট হবে। এটি <strong>undo করা যাবে না</strong>।</p>
+        <p>সব checkbox, status, deadline ও revision count শূন্যে রিসেট হবে। এটি <strong>undo করা যাবে না</strong>।</p>
         <button class="danger-btn">⚠️ সব Progress মুছে ফেলুন</button>
     `;
     frag.appendChild(resetCard);
 
-    // About
     const aboutCard = div('settings-card');
     aboutCard.innerHTML = `
         <h3>ℹ️ About</h3>
-        <p><strong>HSC Syllabus Tracker (Engineering)</strong> &nbsp;·&nbsp; Version 4.0</p>
+        <p><strong>HSC Syllabus Tracker (Engineering)</strong> &nbsp;·&nbsp; Version 5.0</p>
         <p style="margin-top:4px">মোট অধ্যায়: <strong>${total}</strong> &nbsp;·&nbsp; NCTB অনুমোদিত সিলেবাস (২০২৪–২৫)</p>
     `;
     frag.appendChild(aboutCard);
