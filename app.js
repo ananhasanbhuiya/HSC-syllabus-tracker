@@ -431,7 +431,7 @@ function updateCountdown() {
     const el = document.getElementById('countdown-display');
     if (!el) return;
     if (!settings.examDate) {
-        el.textContent = '📅 পরীক্ষার তারিখ সেট করুন (Settings)';
+        el.textContent = ' পরীক্ষার তারিখ সেট করুন (Settings)';
         return;
     }
     const diff = new Date(settings.examDate + 'T00:00:00') - new Date();
